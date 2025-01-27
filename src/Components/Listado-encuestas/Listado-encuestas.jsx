@@ -1,27 +1,33 @@
-import listIcon from "../../assets/svg/list.svg";
-import EncuestaImg from "../../assets/svg/encuesta.svg";
+import listIcon from "/assets/svg/list.svg";
+import EncuestaImg from "/assets/svg/encuesta.svg";
+import './Listado-encuestas.css';
+import { Link } from "react-router-dom";
 
 export default function ListadoEncuestas() {
   const encuestas = [
     {
+      id:1,
       img: EncuestaImg,
       fecha: "2024-08-20",
       titulo: "Encuesta de satisfacción",
       texto: "Lorem ipsum dolor sit amet, coctetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet  dolore magna aliquam erat volutpat. ",
     },
     {
+      id:2,
       img: EncuestaImg,
       fecha: "2024-08-19",
       titulo: "Encuesta reclutamiento, selección y contratación",
       texto: "Lorem ipsum dolor sit amet, coctetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet  dolore magna aliquam erat volutpat. ",
     },
     {
+      id:1,
       img: EncuestaImg,
       fecha: "2024-08-18",
       titulo: "Pulso Habi ",
       texto: "Lorem ipsum dolor sit amet, coctetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet  dolore magna aliquam erat volutpat. ",
     },
     {
+      id:2,
       img: EncuestaImg,
       fecha: "2024-08-17",
       titulo: "Encuesta de ingreso de personal",
@@ -40,11 +46,13 @@ export default function ListadoEncuestas() {
       </div>
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
         {encuestas.map((encuesta, index) => (
+          <Link to={`/employeejourney/editar/${encuesta.id}`}>
           <div
             key={index}
-            className="p-4 bg-white rounded-[16px] shadow-lg relative overflow-hidden"
+            style={{boxShadow:"0 0 6px #ccc"}}
+            className="p-4 bg-white rounded-[16px] relative overflow-hidden"
           >
-            <div className="absolute top-[-15px] right-[-15px] bg-[#1D70B7] p-3 rounded-full pt-4 pr-5">
+            <div className="absolute top-[-15px] right-[-15px] p-3 rounded-full pt-4 pr-5 bg-terciario">
               <img
                 className=" relative top-0 left-0 h-[45px] w-[45px] object-cover"
                 src={encuesta.img}
@@ -57,6 +65,7 @@ export default function ListadoEncuestas() {
               <p className="text-gray-700 mt-auto">{encuesta.texto}</p>
             </div>
           </div>
+          </Link>
         ))}
       </section>
     </section>

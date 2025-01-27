@@ -1,20 +1,19 @@
-import listIcon from "../../../assets/svg/list.svg";
-import ImgConversacion from "../../../assets/img/conversacion.jpg";
+import listIcon from "/assets/svg/list.svg";
+import ImgConversacion from "/assets/img/conversacion.jpg";
 import {
   IconTrash,
   IconPlus,
   IconChevronLeft,
   IconChevronRight,
   IconPencil,
+  IconUpload,
+  IconArrowBigLeft,
+  IconArrowBigLeftFilled,
+  IconArrowLeft,
 } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
 import { useState } from "react";
 
 export default function InformationEmpresas() {
-  const handleLinkClick = (title) => {
-    titulo(title);
-  };
-
   const empresas = [
     {
       id: 1,
@@ -46,70 +45,22 @@ export default function InformationEmpresas() {
       img: ImgConversacion,
       activo: true,
     },
-    {
-      id: 4,
-      nombre: "Encuesta de evaluación del equipo #4",
-      pais: "colombia",
-      sedes: "bogota",
-      tamaño: "hasta 200 empleados",
-      sector: "financiero",
-      img: ImgConversacion,
-      activo: false,
-    },
-    {
-      id: 5,
-      nombre: "Encuesta de satisfacción #5",
-      pais: "colombia",
-      sedes: "bogota",
-      tamaño: "hasta 200 empleados",
-      sector: "financiero",
-      img: ImgConversacion,
-      activo: false,
-    },
-    {
-      id: 6,
-      nombre: "Encuesta de evaluación del equipo #4",
-      pais: "colombia",
-      sedes: "bogota",
-      tamaño: "hasta 200 empleados",
-      sector: "financiero",
-      img: ImgConversacion,
-      activo: false,
-    },
-    {
-      id: 7,
-      nombre: "Encuesta de satisfacción #5",
-      pais: "colombia",
-      sedes: "bogota",
-      tamaño: "hasta 200 empleados",
-      sector: "financiero",
-      img: ImgConversacion,
-      activo: false,
-    },
-    {
-      id: 8,
-      nombre: "Encuesta de evaluación del equipo #4",
-      pais: "colombia",
-      sedes: "bogota",
-      tamaño: "hasta 200 empleados",
-      sector: "financiero",
-      img: ImgConversacion,
-      activo: false,
-    },
-    {
-      id: 9,
-      nombre: "Encuesta de satisfacción #5",
-      pais: "colombia",
-      sedes: "bogota",
-      tamaño: "hasta 200 empleados",
-      sector: "financiero",
-      img: ImgConversacion,
-      activo: false,
-    },
   ];
 
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const itemsPerPage = 6; // Número de empresas por página
+
+  const [currentStep, setCurrentStep] = useState(1);
+  const [step, setStep] = useState(1);
+
+  // Función para manejar los pasos del modal
+  const handleNextStep = () => {
+    setCurrentStep((prevStep) => prevStep + 1);
+  };
+
+  const handlePrevStep = () => {
+    setCurrentStep((prevStep) => prevStep - 1);
+  };
 
   // Estado de los switches
   const [switchStates, setSwitchStates] = useState(
@@ -139,6 +90,136 @@ export default function InformationEmpresas() {
     }));
   };
 
+  // modal empresas
+  const [openModal, setOpenModal] = useState(false);
+  const [editing, setEditing] = useState(null);
+
+  const [data, setData] = useState({
+    nombre: "",
+    pais: "",
+    sedes: "",
+    tamaño: "",
+    sector: "",
+    img: null,
+    activo: false,
+    colorPrimario: "",
+    colorSecundario: "",
+    colorTerciario: "",
+    HeaderColorTextos: "",
+    HeaderColorIcons: "",
+    navColorIcon: "",
+    navColorFondoIcon: "",
+    btnPrimarioColor: "",
+    btnPrimarioColorTexto: "",
+    btnPrimarioColor: "",
+    btnPrimarioColorTexto: "",
+    btnSecundarioColor: "",
+    btnSecundarioColorTexto: "",
+  });
+
+  const handleCreate = () => {
+    setStep(1);
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    console.log("Creando categoría:", data);
+
+    // Cerrar el modal y resetear estado
+    setOpenModal(false);
+    setData({
+      nombre: "",
+      pais: "",
+      sedes: "",
+      tamaño: "",
+      sector: "",
+      img: null,
+      activo: false,
+      colorPrimario: "",
+      colorsecundario: "",
+      colorTerciario: "",
+      HeaderColorTextos: "",
+      HeaderColorIcons: "",
+      navColorIcon: "",
+      navColorFondoIcon: "",
+      btnPrimarioColor: "",
+      btnPrimarioColorTexto: "",
+      btnPrimarioColor: "",
+      btnPrimarioColorTexto: "",
+      btnSecundarioColor: "",
+      btnSecundarioColorTexto: "",
+    });
+  };
+
+  // editar categorias
+  const handleEdit = (empresa) => {
+    setStep(1);
+    setEditing(empresa);
+    setData({
+      nombre: empresa.nombre,
+      pais: empresa.pais,
+      sedes: empresa.sedes,
+      tamaño: empresa.tamaño,
+      sector: empresa.sector,
+      img: empresa.img,
+      activo: empresa.activo,
+    });
+    setOpenModal(true);
+  };
+
+  const handleUpdate = () => {
+    setStep(1);
+    // Realiza la lógica para actualizar el mapa
+    console.log("Actualizando mapa:", data);
+    setOpenModal(false);
+    setEditing(null);
+    setData({
+      nombre: "",
+      pais: "",
+      sedes: "",
+      tamaño: "",
+      sector: "",
+      img: null,
+      activo: false,
+      colorPrimario: "",
+      colorsecundario: "",
+      colorTerciario: "",
+      HeaderColorTextos: "",
+      HeaderColorIcons: "",
+      navColorIcon: "",
+      navColorFondoIcon: "",
+      btnPrimarioColor: "",
+      btnPrimarioColorTexto: "",
+      btnSecundarioColor: "",
+      btnSecundarioColorTexto: "",
+    });
+  };
+  const handleCancel = () => {
+    setStep(1);
+    // Realiza la lógica para actualizar el mapa
+    setOpenModal(false);
+    setEditing(null);
+    setData({
+      nombre: "",
+      pais: "",
+      sedes: "",
+      tamaño: "",
+      sector: "",
+      img: null,
+      activo: false,
+      colorPrimario: "",
+      colorsecundario: "",
+      colorTerciario: "",
+      HeaderColorTextos: "",
+      HeaderColorIcons: "",
+      navColorIcon: "",
+      navColorFondoIcon: "",
+      btnPrimarioColor: "",
+      btnPrimarioColorTexto: "",
+      btnSecundarioColor: "",
+      btnSecundarioColorTexto: "",
+    });
+  };
+
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
@@ -147,12 +228,15 @@ export default function InformationEmpresas() {
             <h2 className="font-bold text-[22px]">Empresas</h2>
             <p>(Empresas en vivo)</p>
           </div>
-          <Link to={"/"} onClick={() => handleLinkClick("Crear Empresa")}>
-            <button className="w-max text-center flex justify-center items-center gap-3 p-2 px-4 text-white bg-[#1D70B7]">
-              <IconPlus />
-              <span>Crear Empresa</span>
-            </button>
-          </Link>
+          <button
+            onClick={() => {
+              setOpenModal(!openModal);
+            }}
+            className="btn btn-principal"
+          >
+            <IconPlus />
+            <span>Crear Empresa</span>
+          </button>
         </section>
         <section className="my-6 bg-white p-8 rounded-[20px]">
           <div className="flex justify-between items-center px-4">
@@ -208,7 +292,7 @@ export default function InformationEmpresas() {
                     <td className="py-5 px-4">{empresa.sector}</td>
                     <td className="py-5 px-4">
                       <span className="flex gap-1">
-                        <IconPencil/>
+                        <IconPencil onClick={() => handleEdit(empresa)} />
                         <IconTrash />
                       </span>
                     </td>
@@ -221,8 +305,10 @@ export default function InformationEmpresas() {
                           onChange={() => handleSwitchChange(empresa.id)}
                         />
                         <div
-                          className={`w-11 h-6 bg-gray-200 rounded-full transition duration-200 ${
-                            switchStates[empresa.id] ? "bg-blue-600" : ""
+                          className={`w-11 h-6 rounded-full transition duration-200 ${
+                            switchStates[empresa.id]
+                              ? "!bg-blue-600"
+                              : "bg-gray-200"
                           }`}
                         ></div>
                         <div
@@ -237,7 +323,7 @@ export default function InformationEmpresas() {
               </tbody>
             </table>
           </div>
-          
+
           {/* Paginador */}
           <div className="flex justify-center mt-4">
             <button
@@ -274,6 +360,541 @@ export default function InformationEmpresas() {
           </div>
         </section>
       </section>
+
+      {openModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-8 rounded-lg shadow-lg w-[800px]">
+            <div className="flex items-center mb-4 gap-4">
+              <button
+                onClick={() => setStep(1)}
+                className={`flex items-center gap-3 text-gray-700 hover:text-gray-500 w-max ${
+                  step === 1 && "hidden"
+                }`}
+              >
+                <IconArrowLeft
+                  stroke={2}
+                  className="w-8 h-8 text-black bg-[#E9EBF0] rounded p-1"
+                />
+                {/* <IconArrowBigLeftFilled stroke={2} /> */}
+              </button>
+              <h3 className="text-[22px] font-bold">
+                {editing ? "Editar empresa" : "Crear empresa"}
+              </h3>
+            </div>
+
+            {/* Control de pasos */}
+            {step === 1 && (
+              <div className="grid grid-cols-2 gap-x-4">
+                <div className="col-span-1">
+                  <label htmlFor="nombre" className="text-[14px]">
+                    Nombre de compañía
+                  </label>
+                  <input
+                    type="text"
+                    name="nombre"
+                    value={data.nombre}
+                    onChange={(e) =>
+                      setData((prev) => ({ ...prev, nombre: e.target.value }))
+                    }
+                    placeholder="Escribe aquí"
+                    className="w-full p-2 border rounded mb-4"
+                  />
+                </div>
+
+                <div className="col-span-1">
+                  <label htmlFor="pais" className="text-[14px]">
+                    País
+                  </label>
+                  <input
+                    type="text"
+                    name="pais"
+                    value={data.pais}
+                    onChange={(e) =>
+                      setData((prev) => ({ ...prev, pais: e.target.value }))
+                    }
+                    placeholder="País"
+                    className="w-full p-2 border rounded mb-4"
+                  />
+                </div>
+
+                <div className="col-span-1">
+                  <label htmlFor="sedes" className="text-[14px]">
+                    Sedes
+                  </label>
+                  <input
+                    type="text"
+                    name="sedes"
+                    value={data.sedes}
+                    onChange={(e) =>
+                      setData((prev) => ({ ...prev, sedes: e.target.value }))
+                    }
+                    placeholder="Cantidad de sedes"
+                    className="w-full p-2 border rounded mb-4"
+                  />
+                </div>
+
+                <div className="col-span-1">
+                  <label htmlFor="tamaño" className="text-[14px]">
+                    Tamaño de la empresa
+                  </label>
+                  <input
+                    type="text"
+                    name="tamaño"
+                    value={data.tamaño}
+                    onChange={(e) =>
+                      setData((prev) => ({ ...prev, tamaño: e.target.value }))
+                    }
+                    placeholder="Tamaño"
+                    className="w-full p-2 border rounded mb-4"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label htmlFor="sector" className="text-[14px]">
+                    Sector
+                  </label>
+                  <input
+                    type="text"
+                    name="sector"
+                    value={data.sector}
+                    onChange={(e) =>
+                      setData((prev) => ({ ...prev, sector: e.target.value }))
+                    }
+                    placeholder="Sector"
+                    className="w-full p-2 border rounded mb-4"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label htmlFor="img" className="text-[14px]">
+                    Imagen
+                  </label>
+                  <input
+                    type="file"
+                    name="img"
+                    onChange={(e) =>
+                      setData((prev) => ({ ...prev, img: e.target.files[0] }))
+                    }
+                    className="w-full p-2 border rounded mb-4"
+                  />
+                </div>
+
+                {/* Navegación entre pasos */}
+                <div className="col-span-2 flex justify-end gap-4 mt-4">
+                  <button
+                    onClick={handleCancel}
+                    className="btn btn-secundario px-4 py-2"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={() => setStep(2)}
+                    className="btn btn-principal px-4 py-2"
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="grid grid-cols-4 gap-x-4">
+                <input type="hidden" name="activo" value={data.activo} />
+                {/* color Primario */}
+                <div className="col-span-4">
+                  <h2 className="font-bold my-3">Colores del tema</h2>
+                </div>
+                <div className="grid grid-cols-3 col-span-4">
+                  <div className="col-span-1">
+                    <label htmlFor="colorPrimario" className="text-[14px]">
+                      Color Primario
+                    </label>
+                    <div className="relative flex items-center justify-center mb-4">
+                      <label
+                        htmlFor="colorPrimario"
+                        className={`absolute w-4/5 top-0 h-10 flex items-center justify-center right-0 cursor-pointer bg-[rgba(255,255,255,0.8)] px-5 ${
+                          data.colorPrimario ? "flex" : "hidden"
+                        }`}
+                      >
+                        {data.colorPrimario ? data.colorPrimario : ""}
+                      </label>
+                      <input
+                        type="color"
+                        id="colorPrimario"
+                        name="colorPrimario"
+                        value={data.colorPrimario || "#ffffff"} // Usa #ffffff si no hay color seleccionado
+                        onChange={(e) =>
+                          setData((prev) => ({
+                            ...prev,
+                            colorPrimario: e.target.value, // Actualiza el color seleccionado
+                          }))
+                        }
+                        className="w-full border-none h-11 border rounded btn-secundario !normal-case"
+                      />
+                    </div>
+                  </div>
+
+                  {/* colores principales */}
+                  <div className="col-span-2 row-span-3"></div>
+
+                  {/* color Secundario */}
+                  <div className="col-span-1">
+                    <label htmlFor="colorSecundario" className="text-[14px]">
+                      Color Secundario{" "}
+                    </label>
+                    <div className="relative flex items-center justify-center mb-4">
+                      <label
+                        htmlFor="colorSecundario"
+                        className={`absolute w-4/5 top-0 h-10 flex items-center justify-center right-0 cursor-pointer bg-[rgba(255,255,255,0.8)] px-5 ${
+                          data.colorSecundario ? "flex" : "hidden"
+                        }`}
+                      >
+                        {data.colorSecundario ? data.colorSecundario : ""}
+                      </label>
+                      <input
+                        type="color"
+                        name="colorSecundario"
+                        id="colorSecundario"
+                        value={data.colorSecundario || "#ffffff"} // Usa #ffffff si no hay color seleccionado
+                        onChange={(e) =>
+                          setData((prev) => ({
+                            ...prev,
+                            colorSecundario: e.target.value, // Actualiza el color seleccionado
+                          }))
+                        }
+                        className="w-full border-none h-11 border rounded mb-4 btn-secundario !normal-case"
+                      />
+                    </div>
+                  </div>
+
+                  {/* color Terciario */}
+                  <div className="col-span-1">
+                    <label htmlFor="colorTerciario" className="text-[14px]">
+                      Color Terciario
+                    </label>
+                    <div className="relative flex items-center justify-center mb-4">
+                      <label
+                        htmlFor="colorTerciario"
+                        className={`absolute w-4/5 top-0 h-10 flex items-center justify-center right-0 cursor-pointer bg-[rgba(255,255,255,0.8)] px-5 ${
+                          data.colorTerciario ? "flex" : "hidden"
+                        }`}
+                      >
+                        {data.colorTerciario ? data.colorTerciario : ""}
+                      </label>
+                      <input
+                        type="color"
+                        name="colorTerciario"
+                        id="colorTerciario"
+                        value={data.colorTerciario || "#ffffff"} // Usa #ffffff si no hay color seleccionado
+                        onChange={(e) =>
+                          setData((prev) => ({
+                            ...prev,
+                            colorTerciario: e.target.value, // Actualiza el color seleccionado
+                          }))
+                        }
+                        className="w-full border-none h-11 border btn-secundario !normal-case"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-span-4 grid-cols-4 grid gap-x-4 my-3">
+                  <div className="col-span-2">
+                    <h2 className="font-bold">Header</h2>
+                  </div>
+                  <div className="col-span-2">
+                    <h2 className="font-bold">Barra lateral</h2>
+                  </div>
+                </div>
+
+                {/* color HeaderTextos */}
+                <div className="col-span-1">
+                  <label className="text-[14px]">Color Textos </label>
+                  <div className="relative flex items-center justify-center">
+                    <label
+                      htmlFor="HeaderColorTextos"
+                      className={`absolute w-4/6 top-0 flex items-center right-0 h-full cursor-pointer bg-[rgba(255,255,255,0.7)] px-5 ${
+                        data.HeaderColorTextos ? "flex" : "hidden"
+                      }`}
+                    >
+                      {data.HeaderColorTextos ? data.HeaderColorTextos : ""}
+                    </label>
+                    <input
+                      type="color"
+                      id="HeaderColorTextos"
+                      name="HeaderColorTextos"
+                      value={data.HeaderColorTextos || "#ffffff"}
+                      onChange={(e) =>
+                        setData((prev) => ({
+                          ...prev,
+                          HeaderColorTextos: e.target.value,
+                        }))
+                      }
+                      className="w-full border-none h-11 border rounded btn-secundario !normal-case"
+                    />
+                  </div>
+                </div>
+
+                {/* color HeaderIcons */}
+                <div className="col-span-1">
+                  <label htmlFor="HeaderColorIcons" className="text-[14px]">
+                    Color Icons
+                  </label>
+                  <div className="relative flex items-center justify-center">
+                    <label
+                      htmlFor="HeaderColorIcons"
+                      className={`absolute w-4/6 top-0 flex items-center right-0 h-full cursor-pointer bg-[rgba(255,255,255,0.7)] px-5 ${
+                        data.HeaderColorIcons ? "flex" : "hidden"
+                      }`}
+                    >
+                      {data.HeaderColorIcons ? data.HeaderColorIcons : ""}
+                    </label>
+                    <input
+                      type="color"
+                      name="HeaderColorIcons"
+                      id="HeaderColorIcons"
+                      value={data.HeaderColorIcons || "#ffffff"}
+                      onChange={(e) =>
+                        setData((prev) => ({
+                          ...prev,
+                          HeaderColorIcons: e.target.value,
+                        }))
+                      }
+                      className="w-full border-none h-11 border rounded btn-secundario !normal-case"
+                    />
+                  </div>
+                </div>
+
+                {/* color navColorIcon */}
+                <div className="col-span-1">
+                  <label htmlFor="navColorIcon" className="text-[14px]">
+                    Color icono
+                  </label>
+                  <div className="relative flex items-center justify-center">
+                    <label
+                      htmlFor="navColorIcon"
+                      className={`absolute w-4/6 top-0 flex items-center right-0 h-full cursor-pointer bg-[rgba(255,255,255,0.7)] px-5 ${
+                        data.navColorIcon ? "flex" : "hidden"
+                      }`}
+                    >
+                      {data.navColorIcon ? data.navColorIcon : ""}
+                    </label>
+                    <input
+                      type="color"
+                      name="navColorIcon"
+                      id="navColorIcon"
+                      value={data.navColorIcon || "#ffffff"}
+                      onChange={(e) =>
+                        setData((prev) => ({
+                          ...prev,
+                          navColorIcon: e.target.value,
+                        }))
+                      }
+                      className="w-full border-none h-11 border rounded btn-secundario !normal-case"
+                    />
+                  </div>
+                </div>
+
+                {/* color navColorFondoIcon */}
+                <div className="col-span-1">
+                  <label htmlFor="navColorFondoIcon" className="text-[14px]">
+                    Color fondo icono
+                  </label>
+                  <div className="relative flex items-center justify-center">
+                    <label
+                      htmlFor="navColorFondoIcon"
+                      className={`absolute w-4/6 top-0 flex items-center right-0 h-full cursor-pointer bg-[rgba(255,255,255,0.7)] px-5 ${
+                        data.navColorFondoIcon ? "flex" : "hidden"
+                      }`}
+                    >
+                      {data.navColorFondoIcon ? data.navColorFondoIcon : ""}
+                    </label>
+                    <input
+                      type="color"
+                      name="navColorFondoIcon"
+                      id="navColorFondoIcon"
+                      value={data.navColorFondoIcon || "#ffffff"}
+                      onChange={(e) =>
+                        setData((prev) => ({
+                          ...prev,
+                          navColorFondoIcon: e.target.value,
+                        }))
+                      }
+                      className="w-full border-none h-11 border rounded btn-secundario !normal-case"
+                    />
+                  </div>
+                </div>
+
+                <div className="col-span-4 grid-cols-4 grid gap-x-4 my-3">
+                  <div className="col-span-2">
+                    <h2 className="font-bold">Botón primario</h2>
+                  </div>
+                  <div className="col-span-2">
+                    <h2 className="font-bold">Botón secundario</h2>
+                  </div>
+                </div>
+
+                {/* color btnPrimarioColor */}
+                <div className="col-span-1">
+                  <label htmlFor="btnPrimarioColor" className="text-[14px]">
+                    Color fondo{" "}
+                    <span>
+                      {data.btnPrimarioColor ? data.btnPrimarioColor : ""}
+                    </span>
+                  </label>
+                  <div className="relative flex items-center justify-center">
+                    <label
+                      htmlFor="btnPrimarioColor"
+                      className={`absolute w-4/6 top-0 flex items-center right-0 h-full cursor-pointer bg-[rgba(255,255,255,0.7)] px-5 ${
+                        data.btnPrimarioColor ? "flex" : "hidden"
+                      }`}
+                    >
+                      {data.btnPrimarioColor ? data.btnPrimarioColor : ""}
+                    </label>
+                    <input
+                      type="color"
+                      name="btnPrimarioColor"
+                      id="btnPrimarioColor"
+                      value={data.btnPrimarioColor || "#ffffff"}
+                      onChange={(e) =>
+                        setData((prev) => ({
+                          ...prev,
+                          btnPrimarioColor: e.target.value,
+                        }))
+                      }
+                      className="w-full border-none h-11 border rounded btn-secundario !normal-case"
+                    />
+                  </div>
+                </div>
+
+                {/* color btnPrimarioColorTexto */}
+                <div className="col-span-1">
+                  <label
+                    htmlFor="btnPrimarioColorTexto"
+                    className="text-[14px]"
+                  >
+                    Color Texto
+                  </label>
+                  <div className="relative flex items-center justify-center">
+                    <label
+                      htmlFor="btnPrimarioColorTexto"
+                      className={`absolute w-4/6 top-0 flex items-center right-0 h-full cursor-pointer bg-[rgba(255,255,255,0.7)] px-5 ${
+                        data.btnPrimarioColorTexto ? "flex" : "hidden"
+                      }`}
+                    >
+                      {data.btnPrimarioColorTexto
+                        ? data.btnPrimarioColorTexto
+                        : ""}
+                    </label>
+                    <input
+                      type="color"
+                      name="btnPrimarioColorTexto"
+                      id="btnPrimarioColorTexto"
+                      value={data.btnPrimarioColorTexto || "#ffffff"}
+                      onChange={(e) =>
+                        setData((prev) => ({
+                          ...prev,
+                          btnPrimarioColorTexto: e.target.value,
+                        }))
+                      }
+                      className="w-full border-none h-11 border rounded btn-secundario !normal-case"
+                    />
+                  </div>
+                </div>
+
+                {/* color btnSecundarioColor */}
+                <div className="col-span-1">
+                  <label htmlFor="btnSecundarioColor" className="text-[14px]">
+                    Color fondo{" "}
+                    <span>
+                      {data.btnSecundarioColor ? data.btnSecundarioColor : ""}
+                    </span>
+                  </label>
+                  <div className="relative flex items-center justify-center">
+                    <label
+                      htmlFor="btnSecundarioColor"
+                      className={`absolute w-4/6 top-0 flex items-center right-0 h-full cursor-pointer bg-[rgba(255,255,255,0.7)] px-5 ${
+                        data.btnSecundarioColor ? "flex" : "hidden"
+                      }`}
+                    >
+                      {data.btnSecundarioColor ? data.btnSecundarioColor : ""}
+                    </label>
+                    <input
+                      type="color"
+                      name="btnSecundarioColor"
+                      id="btnSecundarioColor"
+                      value={data.btnSecundarioColor || "#ffffff"}
+                      onChange={(e) =>
+                        setData((prev) => ({
+                          ...prev,
+                          btnSecundarioColor: e.target.value,
+                        }))
+                      }
+                      className="w-full border-none h-11 border rounded btn-secundario !normal-case"
+                    />
+                  </div>
+                </div>
+
+                {/* color btnSecundarioColorTexto */}
+                <div className="col-span-1">
+                  <label
+                    htmlFor="btnSecundarioColorTexto"
+                    className="text-[14px]"
+                  >
+                    Color Texto{" "}
+                    <span>
+                      {data.btnSecundarioColorTexto
+                        ? data.btnSecundarioColorTexto
+                        : ""}
+                    </span>
+                  </label>
+                  <div className="relative flex items-center justify-center">
+                    <label
+                      htmlFor="btnSecundarioColorTexto"
+                      className={`absolute w-4/6 top-0 flex items-center right-0 h-full cursor-pointer bg-[rgba(255,255,255,0.7)] px-5 ${
+                        data.btnSecundarioColorTexto ? "flex" : "hidden"
+                      }`}
+                    >
+                      {data.btnSecundarioColorTexto
+                        ? data.btnSecundarioColorTexto
+                        : ""}
+                    </label>
+                    <input
+                      type="color"
+                      name="btnSecundarioColorTexto"
+                      id="btnSecundarioColorTexto"
+                      value={data.btnSecundarioColorTexto || "#ffffff"}
+                      onChange={(e) =>
+                        setData((prev) => ({
+                          ...prev,
+                          btnSecundarioColorTexto: e.target.value,
+                        }))
+                      }
+                      className="w-full border-none h-11 border rounded btn-secundario !normal-case"
+                    />
+                  </div>
+                </div>
+
+                {/* Navegación entre pasos */}
+                <div className="col-span-4 flex justify-end gap-4 mt-8">
+                  <button
+                    onClick={handleCancel}
+                    className="btn btn-secundario px-4 py-2"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={editing ? handleUpdate : handleCreate}
+                    className="btn btn-principal px-4 py-2"
+                  >
+                    {editing ? "Actualizar" : "Crear"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }

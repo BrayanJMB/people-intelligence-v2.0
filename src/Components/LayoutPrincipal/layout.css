@@ -68,3 +68,15 @@
     background-color: #e0e0e0;
   }
   
+
+  .row-after::after{
+    position: absolute;
+    content: "";
+    top: 15px;
+    left: 50%;
+    transform: translate(-50%);
+    background: white;
+    rotate: 45deg;
+    width: 15px;
+    height: 15px;
+  }

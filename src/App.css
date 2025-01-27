@@ -1,0 +1,43 @@
+.btn{
+    min-width: 180px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;    
+}
+.btn-secundario{
+    color: var(--btn-secundario-color-texto);
+    border: 1px solid var(--btn-secundario-color-texto);
+    background: var(--btn-secundario-color);
+}
+.btn-principal{
+    color: var(--btn-primario-color-texto);
+    background: var(--btn-primario-color);
+}
+
+.bg-terciario{
+    background: var(--color-terciario);
+}
+.color-secundario{
+    color: var(--color-secundario);
+}
+.color-terciario{
+    color: var(--color-terciario) !important;
+}
+.border-color-terciario{    
+    border-color: var(--color-terciario);
+}
+.border-terciario{    
+    border: 2px dashed var(--color-terciario);
+}
+.bg-principal{
+    background: var(--color-principal);
+}
+.bg-secundario{
+    background: var(--color-secundario);
+}
+.btn-login{
+    background: #1D70B7;
+}

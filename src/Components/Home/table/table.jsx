@@ -1,56 +1,68 @@
 import { useState, useEffect } from "react";
-import iconFiltro from "../../../assets/svg/icon-filter.svg";
-import imgReciente from "../../../assets/img/img-recientes.jpg";
+import iconFiltro from "/assets/svg/icon-filter.svg";
+import imgReciente from "/assets/img/img-recientes.jpg";
+import { IconEdit } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 
-export default function Table() {
+export default function Table({ titulo }) {
   const [data, setData] = useState([]);
+  // Manejador de clic para actualizar el título
+  const handleLinkClick = (title) => {
+    titulo(title);
+  };
 
   useEffect(() => {
     // Datos de prueba
     const pruebaData = [
       {
+        id: 1,
         nombre: "Nombre la conversación 1",
-        formato: "conversación",
+        formato: "Conversación",
         fechaCreacion: "05/10/2024/ 8:00am",
         fechaEdicion: "05/10/2024/ 8:00am  ",
         nombreTablero: "Example interview title",
         img: imgReciente.src,
       },
       {
+        id: 2,
         nombre: "Nombre la conversación 1",
-        formato: "encuesta",
+        formato: "Encuesta",
         fechaCreacion: "05/10/2024/ 8:00am",
         fechaEdicion: "05/10/2024/ 8:00am  ",
         nombreTablero: "Example interview title",
         img: imgReciente.src,
       },
       {
+        id: 1,
         nombre: "Nombre la conversación 1",
-        formato: "conversación",
+        formato: "Conversación",
         fechaCreacion: "05/10/2024/ 8:00am",
         fechaEdicion: "05/10/2024/ 8:00am  ",
         nombreTablero: "Example interview title",
         img: imgReciente.src,
       },
       {
+        id: 2,
         nombre: "Nombre la conversación 1",
-        formato: "encuesta",
+        formato: "Encuesta",
         fechaCreacion: "05/10/2024/ 8:00am",
         fechaEdicion: "05/10/2024/ 8:00am  ",
         nombreTablero: "Example interview title",
         img: imgReciente.src,
       },
       {
+        id: 1,
         nombre: "Nombre la conversación 1",
-        formato: "conversación",
+        formato: "Conversación",
         fechaCreacion: "05/10/2024/ 8:00am",
         fechaEdicion: "05/10/2024/ 8:00am  ",
         nombreTablero: "Example interview title",
         img: imgReciente.src,
       },
       {
+        id: 2,
         nombre: "Nombre la conversación 1",
-        formato: "conversación",
+        formato: "Conversación",
         fechaCreacion: "05/10/2024/ 8:00am",
         fechaEdicion: "05/10/2024/ 8:00am  ",
         nombreTablero: "Example interview title",
@@ -98,8 +110,14 @@ export default function Table() {
             {data.map((item, index) => (
               <tr key={index} className="">
                 <td className="py-2 px-4 text-gray-800 flex items-center gap-2">
-                  <img className="rounded" width={35} height={35} src={imgReciente} alt="" />
-                  <span className="underline">{item.nombre}</span>  
+                  <img
+                    className="rounded"
+                    width={35}
+                    height={35}
+                    src={imgReciente}
+                    alt=""
+                  />
+                  <span className="underline">{item.nombre}</span>
                 </td>
                 <td className="py-2 px-4 text-gray-800">{item.formato}</td>
                 <td className="py-2 px-4 text-gray-800">
@@ -110,25 +128,16 @@ export default function Table() {
                   {item.nombreTablero}
                 </td>
                 <td className="py-2 px-4 flex items-center space-x-2">
-                  <button className="">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="35"
-                      height="35"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="w-5 h-5"
-                    >
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                      <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                      <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                      <path d="M16 5l3 3" />
-                    </svg>
-                  </button>
+                  <Link
+                    onClick={() => {handleLinkClick("")}}
+                    to={`/${
+                      item.formato === "encuesta"
+                        ? "employeejourney"
+                        : "live-conversations"
+                    }/editar/${item.id}`}                    
+                  >
+                    <IconEdit stroke={2} />
+                  </Link>
                 </td>
               </tr>
             ))}

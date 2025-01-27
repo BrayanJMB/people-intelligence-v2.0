@@ -16,7 +16,7 @@
 }
 @font-face {
   font-family: 'Aeonik';
-  src: url('./assets/fonts/Aeonik-Regular.ttf') format('truetype');
+  src: url('/assets/fonts/Aeonik-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -24,7 +24,7 @@
 
 @font-face {
   font-family: 'Aeonik';
-  src: url('./assets/fonts/Aeonik-Medium.ttf') format('truetype');
+  src: url('/assets/fonts/Aeonik-Medium.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -40,7 +40,7 @@
 
 @font-face {
   font-family: 'Aeonik';
-  src: url('./assets/fonts/Aeonik-Black.ttf') format('truetype');
+  src: url('/assets/fonts/Aeonik-Black.ttf') format('truetype');
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -48,7 +48,7 @@
 
 @font-face {
   font-family: 'Aeonik';
-  src: url('./assets/fonts/Aeonik-Thin.ttf') format('truetype');
+  src: url('/assets/fonts/Aeonik-Thin.ttf') format('truetype');
   font-weight: 100;
   font-style: normal;
   font-display: swap;
@@ -56,13 +56,32 @@
 
 @font-face {
   font-family: 'Aeonik';
-  src: url('./assets/fonts/Aeonik-Bold.ttf') format('truetype');
+  src: url('/assets/fonts/Aeonik-Bold.ttf') format('truetype');
   font-weight: bold;
   font-style: normal;
   font-display: swap;
 }
 
 body{
-  background: var(--Background);
-  font-family: 'Aeonik';
+  background: var(--Background) !important;
+  font-family: 'Aeonik' !important;
+  color: #232121;
+}
+
+input[type="color"] {
+  border: none; /* Opcional: elimina bordes externos */
+  padding: 0;
+  width: 100%;
+  box-shadow: 0 0 2px #969696;
+  height: 40px; /* Altura personalizada */
+  background-color: transparent; /* Fondo transparente si no quieres estilos predeterminados */
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none; /* Línea interna personalizada */
+  border-radius: 4px; /* Opcional: redondear esquinas */
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0; /* Ajustar padding interno */
 }

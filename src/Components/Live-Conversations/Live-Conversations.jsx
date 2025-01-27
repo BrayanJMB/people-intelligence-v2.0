@@ -1,5 +1,5 @@
-import listIcon from "../../assets/svg/list.svg";
-import ImgConversacion from "../../assets/img/conversacion.jpg";
+import listIcon from "/assets/svg/list.svg";
+import ImgConversacion from "/assets/img/conversacion.jpg";
 import {
   IconTrash,
   IconDownload,
@@ -31,25 +31,25 @@ export default function LiveConversations({ titulo }) {
       img: ImgConversacion,
     },
     {
-      id: 3,
+      id: 1,
       nombre: "Encuesta de rendimiento laboral #3",
       moderador: "David Garcia",
       img: ImgConversacion,
     },
     {
-      id: 4,
+      id: 2,
       nombre: "Encuesta de evaluación del equipo #4",
       moderador: "Ana Rodriguez",
       img: ImgConversacion,
     },
     {
-      id: 5,
+      id: 1,
       nombre: "Encuesta de satisfacción #5",
       moderador: "María Fernanda",
       img: ImgConversacion,
     },
     {
-      id: 6,
+      id: 2,
       nombre: "Encuesta de motivación laboral #6",
       moderador: "Jose Ramirez",
       img: ImgConversacion,
@@ -80,7 +80,7 @@ export default function LiveConversations({ titulo }) {
           to={"/crear-conversacion"}
           onClick={() => handleLinkClick("Crear conversación")}
         >
-          <button className="w-max text-center flex justify-center items-center gap-3 p-2 px-4 text-white bg-[#1D70B7]">
+          <button className="btn btn-principal">
             <IconPlus />
             <span>Crear conversación</span>
           </button>
@@ -124,12 +124,12 @@ export default function LiveConversations({ titulo }) {
                       {encuesta.nombre}
                     </p>
                   </td>
-                  <td className="py-5 px-4 flex gap-2">
-                    {encuesta.moderador}
-                  </td>
+                  <td className="py-5 px-4 flex gap-2">{encuesta.moderador}</td>
                   <td className="py-5 px-4">
                     <span className="flex gap-1">
-                      <IconEye />
+                      <Link to={`/live-conversations/editar/${encuesta.id}`}>
+                        <IconEye />
+                      </Link>
                       <IconDownload />
                       <IconLink />
                       <IconTrash />

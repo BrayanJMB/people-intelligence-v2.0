@@ -1,14 +1,15 @@
 import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "./createPlantilla.css"; // Ensure this CSS file contains the necessary styles
-import ImgQuestions from "../../../assets/svg/questions.svg";
-import ImgReloj from "../../../assets/svg/reloj.svg";
-import ImgEliminar from "../../../assets/svg/delete.svg";
-import bgCard from "../../../assets/img/textura.png";
-import Question from "../../../assets/svg/questions.svg";
-import edit from "../../../assets/svg/edit.svg";
-import grip from "../../../assets/svg/grip.svg";
-import categoryIcon from "../../../assets/svg/category.svg";
+import ImgQuestions from "/assets/svg/questions.svg";
+import ImgReloj from "/assets/svg/reloj.svg";
+import ImgEliminar from "/assets/svg/delete.svg";
+import bgCard from "/assets/img/textura.png";
+import Question from "/assets/svg/questions.svg";
+import edit from "/assets/svg/edit.svg";
+import grip from "/assets/svg/grip.svg";
+import categoryIcon from "/assets/svg/category.svg";
+import { IconArrowLeft, IconCategory2, IconCheck, IconCircleCheckFilled, IconHelpHexagon, IconPlus, IconTrash } from "@tabler/icons-react";
 
 export default function CreatePlantilla({ titulo }) {
   const [currentSection, setCurrentSection] = useState(1);
@@ -191,6 +192,7 @@ export default function CreatePlantilla({ titulo }) {
   const [newDemographic, setNewDemographic] = useState({
     titulo: "",
     tipoSeleccion: "select",
+    categoria: "",
     respuestas: [],
     respuestaCorrecta: " ",
     descripcion: "",
@@ -290,6 +292,7 @@ export default function CreatePlantilla({ titulo }) {
   const [newQuestion, setNewQuestion] = useState({
     titulo: "",
     tipoSeleccion: "select",
+    categoria: "",
     respuestas: [],
     respuestaCorrecta: " ",
   });
@@ -307,6 +310,7 @@ export default function CreatePlantilla({ titulo }) {
     setNewQuestion({
       titulo: "",
       tipoSeleccion: "select",
+      categoria: "",
       respuestas: [],
       respuestaCorrecta: "",
     });
@@ -595,7 +599,7 @@ export default function CreatePlantilla({ titulo }) {
                           >
                             <div className="flex justify-between">
                               <h3 className="flex gap-2 items-center">
-                                <span className="w-8 h-8 flex items-center justify-center text-white bg-[#1D70B7] rounded-full font-bold text-xs">
+                                <span className="w-8 h-8 flex items-center justify-center text-white bg-terciario rounded-full font-bold text-xs">
                                   D{index + 1}
                                 </span>
                                 {pregunta.titulo}
@@ -606,23 +610,10 @@ export default function CreatePlantilla({ titulo }) {
                         ))}
                       </ul>
                       <button
-                        className="p-2 mt-11 border-[#1D70B7] border-2 w-full mx-auto h-max text-center flex justify-center items-center gap-3 text-[#1D70B7]"
+                        className="p-2 mt-11 btn-secundario border-2 w-full mx-auto h-max text-center flex justify-center items-center gap-3"
                         onClick={() => setShowAddDemographicModal(true)}
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          className="icon icon-tabler icons-tabler-outline icon-tabler-plus"
-                        >
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <path d="M12 5l0 14" />
-                          <path d="M5 12l14 0" />
-                        </svg>{" "}
+                        <IconPlus stroke={2}/>{" "}
                         <span>Añadir demografico</span>
                       </button>
                     </div>
@@ -632,14 +623,17 @@ export default function CreatePlantilla({ titulo }) {
                     {formData.DatosDemograficos.map((dato, key) => (
                       <div key={key} className="mb-5">
                         <div className="flex gap-4 p-5 border-2 rounded-[10px] border-[#B7B7B7]">
-                          <p className="w-8 h-8 flex items-center justify-center text-white bg-[#1D70B7] rounded-full font-bold text-xs">
+                          <p className="w-8 h-8 flex items-center justify-center text-white bg-terciario rounded-full font-bold text-xs">
                             P{key + 1}
                           </p>
                           <div className="flex justify-between w-full gap-4">
                             <div>
                               <h3 className="font-bold">{dato.titulo}</h3>
                               <h4 className="flex gap-1 items-center mt-1 ">
-                                <img src={Question} alt="" />
+                                <IconHelpHexagon
+                                  className="color-terciario"
+                                  stroke={2}
+                                />
                                 {dato.tipoSeleccion}
                               </h4>
                             </div>
@@ -713,7 +707,7 @@ export default function CreatePlantilla({ titulo }) {
                           >
                             <div className="flex justify-between">
                               <h3 className="flex gap-2 items-center">
-                                <span className="w-8 h-8 flex items-center justify-center text-white bg-[#1D70B7] rounded-full font-bold text-xs">
+                                <span className="w-8 h-8 flex items-center justify-center text-white bg-terciario rounded-full font-bold text-xs">
                                   D{index + 1}
                                 </span>
                                 {pregunta.titulo}
@@ -724,23 +718,11 @@ export default function CreatePlantilla({ titulo }) {
                         ))}
                       </ul>
                       <button
-                        className="p-2 mt-11 border-[#1D70B7] border-2 w-full mx-auto h-max text-center flex justify-center items-center gap-3 text-[#1D70B7]"
+                        className="p-2 mt-11 btn-secundario border-2 w-full mx-auto h-max text-center flex justify-center items-center gap-3"
                         onClick={() => setShowAddquestions(true)}
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          className="icon icon-tabler icons-tabler-outline icon-tabler-plus"
-                        >
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <path d="M12 5l0 14" />
-                          <path d="M5 12l14 0" />
-                        </svg>{" "}
+                        <IconPlus stroke={2}/>
+                        {" "}
                         <span>Añadir pregunta</span>
                       </button>
                     </div>
@@ -750,7 +732,7 @@ export default function CreatePlantilla({ titulo }) {
                     {formData.Pregunta.map((dato, key) => (
                       <div key={key} className="mb-5">
                         <div className="flex gap-4 p-5 border-2 rounded-[10px] border-[#B7B7B7]">
-                          <p className="w-8 h-8 flex items-center justify-center text-white bg-[#1D70B7] rounded-full font-bold text-xs">
+                          <p className="w-8 h-8 flex items-center justify-center text-white bg-terciario rounded-full font-bold text-xs">
                             P{key + 1}
                           </p>
                           <div className="flex justify-between w-full gap-4">
@@ -758,7 +740,10 @@ export default function CreatePlantilla({ titulo }) {
                               <h3 className="font-bold">{dato.titulo}</h3>
                               <div className="flex gap-6 mt-1 items-center">
                                 <h4 className="flex gap-1 items-center">
-                                  <img src={Question} alt="" />
+                                  <IconHelpHexagon
+                                    className="color-terciario"
+                                    stroke={2}
+                                  />
                                   {dato.tipoSeleccion}
                                 </h4>
                                 {/* <div className="flex gap-1 items-center">
@@ -766,7 +751,10 @@ export default function CreatePlantilla({ titulo }) {
                                   {dato.tiempo}
                                 </div> */}
                                 <div className="flex gap-1 items-center">
-                                  <img src={categoryIcon} alt="" />
+                                  <IconCategory2
+                                    stroke={2}
+                                    className="color-terciario"
+                                  />
                                   {dato.categoria}
                                 </div>
                               </div>
@@ -826,7 +814,7 @@ export default function CreatePlantilla({ titulo }) {
                 <label className="flex justify-between items-center space-x-2 my-2 bg-white rounded-lg border-none cursor-pointer w-max">
                   <input
                     type="checkbox"
-                    className="form-checkbox h-5 w-5 text-[#1D70B7]"
+                    className="form-checkbox h-5 w-5 color-terciario"
                     checked={formData.EncuestaAnonima}
                     onChange={() =>
                       setFormData((prevState) => ({
@@ -842,7 +830,7 @@ export default function CreatePlantilla({ titulo }) {
                 <label className="flex justify-between items-center space-x-2 my-2 bg-white rounded-lg border-none cursor-pointer w-max">
                   <input
                     type="checkbox"
-                    className="form-checkbox h-5 w-5 text-[#1D70B7]"
+                    className="form-checkbox h-5 w-5 color-terciario"
                     checked={!formData.EncuestaAnonima}
                     onChange={() =>
                       setFormData((prevState) => ({
@@ -867,7 +855,7 @@ export default function CreatePlantilla({ titulo }) {
                 <label className="flex justify-between items-center space-x-2 my-2 bg-white rounded-lg border-none cursor-pointer w-max">
                   <input
                     type="checkbox"
-                    className="form-checkbox h-5 w-5 text-[#1D70B7]"
+                    className="form-checkbox h-5 w-5 color-terciario"
                     checked={formData.AccesoRestringido}
                     onChange={() =>
                       setFormData((prevState) => ({
@@ -883,7 +871,7 @@ export default function CreatePlantilla({ titulo }) {
                 <label className="flex justify-between items-center space-x-2 my-2 bg-white border-none cursor-pointer w-max">
                   <input
                     type="checkbox"
-                    className="form-checkbox h-5 w-5 text-[#1D70B7] !rounded-full"
+                    className="form-checkbox h-5 w-5 color-terciario !rounded-full"
                     checked={!formData.AccesoRestringido}
                     onChange={() =>
                       setFormData((prevState) => ({
@@ -908,7 +896,7 @@ export default function CreatePlantilla({ titulo }) {
       className="m-8 bg-white h-max my-0 rounded-t-[20px] min-h-[85vh]"
       ref={scrollContainerRef}
     >
-      <section className="flex items-center justify-between gap-3 p-0 bg-[#3F4A66] rounded-t-[20px] sticky top-0 z-10">
+      <section className="flex items-center justify-between gap-3 p-0 bg-terciario rounded-t-[20px] sticky top-0 z-10">
         <section
           className={`form-actions w-full mx-auto ${
             currentSection === 1 ? "justify-between" : "justify-end"
@@ -919,26 +907,10 @@ export default function CreatePlantilla({ titulo }) {
               <div>
                 <Link
                   className="flex items-center gap-3 text-gray-700 hover:text-gray-500 w-max"
-                  to={"/live-conversations"}
+                  to={"/employeejourney/plantillaencuestas"}
                   onClick={() => handleLinkClick("Employee Journey")}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="w-8 h-8 text-black bg-[#E9EBF0] rounded p-1"
-                  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M5 12l14 0" />
-                    <path d="M5 12l6 6" />
-                    <path d="M5 12l6 -6" />
-                  </svg>
+                  <IconArrowLeft stroke={2} className="w-8 h-8 text-black bg-[#E9EBF0] rounded p-1" />               
                 </Link>
               </div>
             )}
@@ -952,20 +924,7 @@ export default function CreatePlantilla({ titulo }) {
                   } ${currentSection === index + 1 ? "active" : ""}`}
                 >
                   {completed && currentSection !== index + 1 ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="check-icon text-white"
-                    >
-                      <path d="M5 12l5 5L20 7" />
-                    </svg>
+                    <IconCheck stroke={2} />                    
                   ) : (
                     index + 1
                   )}
@@ -989,7 +948,7 @@ export default function CreatePlantilla({ titulo }) {
           >
             {currentSection === 1 ? (
               <Link
-                className={`back-button w-[120px] text-white text-center rounded-lg ${
+                className={`back-button w-[120px] text-center rounded-lg ${
                   currentSection === 1 ? "" : ""
                 }`}
                 to={"/employeejourney/plantillaencuestas"}
@@ -1000,7 +959,7 @@ export default function CreatePlantilla({ titulo }) {
             ) : (
               <button
                 onClick={handleBack}
-                className={`back-button text-white w-[120px] ${
+                className={`back-button w-[120px] ${
                   currentSection === 1 ? "disabled" : ""
                 }`}
                 disabled={currentSection === 1}
@@ -1008,7 +967,10 @@ export default function CreatePlantilla({ titulo }) {
                 Volver
               </button>
             )}
-            <button onClick={handleNext} className="next-button w-[120px]">
+            <button
+              onClick={handleNext}
+              className="next-button w-[120px] btn btn-principal"
+            >
               {currentSection === 4 ? "Crear" : "Continuar"}
             </button>
           </div>
@@ -1019,21 +981,10 @@ export default function CreatePlantilla({ titulo }) {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              className="w-[50px] h-[50px] p-1 bg-green-600 text-white rounded-full mx-auto icon icon-tabler icons-tabler-outline icon-tabler-check"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M5 12l5 5l10 -10" />
-            </svg>
+            <IconCircleCheckFilled
+              stroke={2}
+              className="color-secundario w-[55px] h-[55px]"
+            />
             <p className="font-bold text-[22px] mb-6">
               Encuesta creada con éxito
             </p>
@@ -1103,23 +1054,7 @@ export default function CreatePlantilla({ titulo }) {
                         onClick={() => handleRemoveOption(index)}
                         className="text-[#606060]  w-[25px] h-[25px]"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="25"
-                          height="25"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          className="icon icon-tabler icon-tabler-trash"
-                        >
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <path d="M4 7l16 0" />
-                          <path d="M10 11l0 6" />
-                          <path d="M14 11l0 6" />
-                          <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                          <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                        </svg>
+                        <IconTrash stroke={2} />
                       </button>
                     </div>
                   </div>
@@ -1127,30 +1062,17 @@ export default function CreatePlantilla({ titulo }) {
               </div>
               <div className="flex flex-col md:col-span-4">
                 <button
-                  className="w-max mx-auto h-full text-center mt-auto flex justify-center items-center gap-3 text-[#1D70B7]"
+                  className="w-max mx-auto h-full text-center mt-auto flex justify-center items-center gap-3 color-terciario"
                   onClick={handleAddOptionDemographic}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    className="icon icon-tabler icon-tabler-plus"
-                  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M12 5l0 14" />
-                    <path d="M5 12l14 0" />
-                  </svg>
+                  <IconPlus className="color-terciario"></IconPlus>
                   <span>Añadir opción de respuesta</span>
                 </button>
               </div>
             </div>
             <div className="gap-4 flex justify-end pt-5">
               <button
-                className="bg-gray-500 border border-[#8C8C8C] rounded-md px-4 py-2 ml-2 w-[180px] bg-transparent text-[#606060] "
+                className="rounded-md px-4 py-2 ml-2 w-[180px] btn-secundario"
                 onClick={() => (
                   setShowAddDemographicModal(false), handleCloseModal()
                 )}
@@ -1158,7 +1080,7 @@ export default function CreatePlantilla({ titulo }) {
                 Cancelar
               </button>
               <button
-                className="bg-[#1D70B7] text-white px-4 py-2 rounded-md border border-[#1D70B7] w-[180px]"
+                className="px-4 py-2 rounded-md border w-[180px] btn-principal"
                 onClick={handleSaveDemographic}
               >
                 {isEditing ? "Guardar cambios" : "Crear"}
@@ -1203,12 +1125,14 @@ export default function CreatePlantilla({ titulo }) {
                   id="categoria"
                   name="categoria"
                   value={newQuestion.categoria}
+                  onChange={handleInputChange}
                   className="border-[#C7C8C8] border p-3 my-1 resize-none rounded-md"
                 >
                   <option value="seleccion" disabled>
                     Seleccione
                   </option>
-                  <option value="text">Texto libre</option>
+                  <option value="Texto libre">Texto libre</option>
+                  <option value="Selección">Selección</option>
                   {/* Opciones de categoría aquí */}
                 </select>
               </div>
@@ -1246,23 +1170,7 @@ export default function CreatePlantilla({ titulo }) {
                         onClick={() => handleRemoveOptionQuestion(index)}
                         className="text-[#606060]  w-[25px] h-[25px]"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="25"
-                          height="25"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          className="icon icon-tabler icon-tabler-trash"
-                        >
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <path d="M4 7l16 0" />
-                          <path d="M10 11l0 6" />
-                          <path d="M14 11l0 6" />
-                          <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                          <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                        </svg>
+                        <IconTrash stroke={2} />
                       </button>
                     </div>
                   </div>
@@ -1271,35 +1179,22 @@ export default function CreatePlantilla({ titulo }) {
             </div>
             <div className="flex flex-col md:col-span-4">
               <button
-                className="w-max mx-auto h-full text-center mt-auto flex justify-center items-center gap-3 text-[#1D70B7]"
+                className="w-max mx-auto h-full text-center mt-auto flex justify-center items-center gap-3 color-terciario"
                 onClick={handleAddOptionQuestion}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="icon icon-tabler icon-tabler-plus"
-                >
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                  <path d="M12 5l0 14" />
-                  <path d="M5 12l14 0" />
-                </svg>
+                <IconPlus className="color-terciario"></IconPlus>
                 <span>Añadir opción de respuesta</span>
               </button>
             </div>
             <div className="gap-4 flex justify-end pt-5">
               <button
-                className="bg-gray-500 border border-[#8C8C8C] rounded-md px-4 py-2 ml-2 w-[180px] bg-transparent text-[#606060] "
+                className="rounded-md px-4 py-2 ml-2 w-[180px] btn-secundario"
                 onClick={() => (setShowAddquestions(false), handleCloseModal())}
               >
                 Cancelar
               </button>
               <button
-                className="bg-[#1D70B7] text-white px-4 py-2 rounded-md border border-[#1D70B7] w-[180px]"
+                className="px-4 py-2 rounded-md border w-[180px] btn-principal"
                 onClick={handleSavePreguntas}
               >
                 {isEditingPregunta ? "Guardar cambios" : "Crear"}

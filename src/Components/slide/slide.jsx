@@ -6,8 +6,8 @@ import { Navigation, Pagination } from "swiper/modules";
 import { EffectCreative } from "swiper/modules";
 import "swiper/css/effect-creative";
 import "./slide.css";
-import cohete from "../../assets/svg/cohete.svg";
-import bgCard from "../../assets/img/background-card-slide.jpg";
+import cohete from "/assets/svg/cohete.svg";
+import bgCard from "/assets/img/background-card-slide.jpg";
 import { Link } from "react-router-dom";
 
 export default function Slide({ titulo }) {
@@ -15,6 +15,7 @@ export default function Slide({ titulo }) {
     {
       title: "Tu llegada",
       img: cohete,
+      // img: "https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png",
     },
     {
       title: "Lo pactado",
@@ -63,7 +64,7 @@ export default function Slide({ titulo }) {
             to={"/employeejourney/AdministrarEncuestas"}
             onClick={() => handleLinkClick("Administrar Encuesta")}
           >
-            <button className="py-0 px-4 h-[45px] border-[#1D70B7] border rounded-md w-[200px]">
+            <button className="py-0 px-4 h-[45px] btn btn-secundario">
               Administrar encuesta
             </button>
           </Link>
@@ -71,7 +72,7 @@ export default function Slide({ titulo }) {
             to={"/employeejourney/plantillaencuestas"}
             onClick={() => handleLinkClick("Plantillas de Encuestas")}
           >
-            <button className="border py-0 px-4 h-[45px] text-white bg-[#1D70B7] rounded-md">
+            <button className="h-[45px] btn btn-principal">
               Crear encuesta
             </button>
           </Link>
@@ -117,13 +118,13 @@ export default function Slide({ titulo }) {
                 className="rounded-3xl overflow-visible border"
               >
                 <div className="mx-auto relative flex items-center justify-center flex-col h-[300px]">
-                  <p className="absolute top-[10px] right-[15px] bg-black text-white p-1 rounded-full h-[25px] w-[25px] font-bold flex items-center justify-center text-[14px]">
+                  <p className="absolute top-[10px] right-[15px] text-white p-1 rounded-full h-[25px] w-[25px] font-bold flex items-center justify-center text-[14px] bg-terciario">
                     {index < 10 ? `0${index + 1}` : "index + 1"}
                   </p>
                   <img
                     src={slide.img}
-                    alt={`Slide ${index + 1}`}
-                    className="card-img bg-[#1D70B7] rounded-full object-contain w-[90px] h-[90px] mx-auto"
+                    alt={`Slide ${index + 1}`}                    
+                    className="card-img rounded-full object-contain w-[90px] h-[90px] mx-auto bg-icon-card-slide"
                   />
                   <h3 className="font-bold text-center mt-5">{slide.title}</h3>
                 </div>

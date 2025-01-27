@@ -15,10 +15,14 @@
     color: black;
 }
 .mySwiper .swiper-slide-active{
-    
     padding: 8px !important;
-    border: 2px solid rgb(29 112 183) !important;
+    border: 2px solid var(--color-secundario) !important;
 }
 .mySwiper .swiper-slide-active > div{
     height: 280px !important;
+}
+
+
+.bg-icon-card-slide{
+    background: var(--color-secundario);
 }
