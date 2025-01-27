@@ -37,7 +37,7 @@ import EditarPlantilla from "../PlantillasEncuestas/editarPlantillasForm/[editar
 import EditarConversation from "../Live-Conversations/editConversation/[editarId]";
 import RegistroDashboard from "../settings/Registro-dashboard/Registro-dashboard";
 import RegistroReporte from "../settings/Registrar-reporte/Registro-reporte";
-import Managecompany from "../settings/Administrar-compañias/administrar-compañia";
+import Managecompany from "../settings/administrar-compañias/administrar-compañia";
 import ManageUsers from "../settings/Administrar-usuarios/administrar-usuarios";
 import ManageRol from "../settings/Administrar-roles/administrar-roles";
 import Login from "../../login/login";
