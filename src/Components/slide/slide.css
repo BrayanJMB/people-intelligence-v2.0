@@ -1,0 +1,24 @@
+.mySwiper{
+    overflow: visible;
+    perspective: 1000px;
+}
+.card{
+    perspective: 1000px;
+}
+.card:not(.swiper-slide-visible){
+    opacity: 0 !important;
+}
+.swiper-button-next:after, .swiper-rtl .swiper-button-prev:after, .swiper-button-prev:after, .swiper-rtl .swiper-button-next:after{
+    font-size: 18px;
+    font-weight: bold;
+    transform: translateY(-10px);
+    color: black;
+}
+.mySwiper .swiper-slide-active{
+    
+    padding: 8px !important;
+    border: 2px solid rgb(29 112 183) !important;
+}
+.mySwiper .swiper-slide-active > div{
+    height: 280px !important;
+}

@@ -1,0 +1,107 @@
+.form-actions {
+    display: flex;
+    justify-content: end;
+  }
+  
+  .step {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #d1d1d1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #ffffff80; 
+  }
+  
+  .step.completed {
+    background-color: #1D70B7;
+    color: #1D70B7;
+  }
+  
+  .step.active {
+    background-color: white; 
+    color: #1D70B7;
+  }
+  
+  .step.final-step {
+    background-color: #1D70B7; 
+    color: white;
+    border: 2px solid #1D70B7; 
+  }
+  
+  button {
+    margin-top: 20px;
+    padding: 10px 20px;    
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px;
+    
+  }
+  
+  .back-button {
+    background: none;
+    border: 1px solid #8C8C8C;
+    color: rgb(37, 37, 37);
+    margin-right: 10px;
+    padding: 10px;
+  }
+  
+  .next-button {
+    background-color: #1D70B7;
+    padding: 10px;
+    color: white;
+  }
+  
+  button:hover {
+    opacity: 0.8;
+  }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 750px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .modal-close {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #1D70B7;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .modal-close:hover {
+    background-color: #0056b3;
+  }
+  .form-navigation .disabled {
+    background-color: none; /* Color gris claro para el botón deshabilitado */
+    color: #a9a9a9; /* Color gris oscuro para el texto deshabilitado */
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
