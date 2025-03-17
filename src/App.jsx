@@ -12,7 +12,6 @@ function App() {
   // Aseguramos que MSAL sepa qué cuenta es la activa (evita "no_account_error")
   useEffect(() => {
     if (accounts.length > 0) {
-      console.log("entro aca")
       instance.setActiveAccount(accounts[0]);
     }
   }, [accounts, instance]);

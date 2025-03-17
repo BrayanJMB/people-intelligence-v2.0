@@ -6,9 +6,12 @@ import {
   IconChevronRight,
   IconPencil,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useState,useEffect } from "react";
+import axios from "axios";
 
 export default function ManageUsers() {
+  const [token, setToken] = useState("");
+  const [users, setUsers] = useState([]);
   const reportes = [
     {
       id: 1,
@@ -171,6 +174,48 @@ export default function ManageUsers() {
     },
   ];
 
+  useEffect(() => {
+    // Función autoejecutable para no bloquear el hook
+    (async () => {
+      try {
+        // 1) Obtener el token de acceso (Client Credentials Flow)
+        //    Reemplaza con tu client_id, client_secret y tenantID
+        const tenantID = "#########";
+        const clientID = "#####";
+
+        const params = new URLSearchParams();
+        params.append("client_id", clientID);
+        params.append("client_secret", clientSecret);
+        // Para usar Microsoft Graph con permisos de aplicación, se usa ".default"
+        params.append("scope", "https://graph.microsoft.com/.default");
+        params.append("grant_type", "client_credentials");
+
+        /*const tokenResponse = await axios.post(
+          `https://login.microsoftonline.com/${tenantID}/oauth2/v2.0/token`,
+          params
+        );
+        console.log(tokenResponse)
+        const accessToken = tokenResponse.data.access_token;
+        setToken(accessToken);*/
+
+        // 2) Consumir el endpoint que requiere el token
+        //    Ejemplo: Obtener usuarios de Microsoft Graph
+        const usersResponse = await axios.get(
+          "https://graph.microsoft.com/v1.0/users?$select=identities,extension_9d977d2f9d24406185fd91270d5d7024_Rol,displayName,userPrincipalName,id",
+          {
+            headers: {
+              Authorization: `Bearer #########`,
+            },
+          }
+        );
+
+        setUsers(usersResponse.data.value);
+      } catch (error) {
+        console.error("Error al obtener token o usuarios:", error);
+      }
+    })();
+  }, []);
+
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
@@ -215,17 +260,17 @@ export default function ManageUsers() {
                 </tr>
               </thead>
               <tbody>
-                {currentItems.map((reportes) => (
+                {users.map((reportes) => (
                   <tr key={reportes.id}>
                     <td className="py-5 px-4">
                       <p className="flex items-center gap-4">
-                        {reportes.nombre}
+                        {reportes.displayName}
                       </p>
                     </td>
                     <td className="py-5 px-4 flex gap-2 items-center">
-                      {reportes.correo}
+                      {reportes.identities[0].issuerAssignedId}
                     </td>
-                    <td className="py-5 px-4">{reportes.rol}</td>
+                    <td className="py-5 px-4">{reportes.extension_9d977d2f9d24406185fd91270d5d7024_Rol ? reportes.extension_9d977d2f9d24406185fd91270d5d7024_Rol: "No tiene roles"}</td>
                     <td className="py-5 px-4">
                       <span className="flex gap-1">
                         <IconPencil onClick={() => handleEdit(reportes)} />
