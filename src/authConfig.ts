@@ -11,34 +11,22 @@ export const b2cPolicies = {
           authority: "https://pruebasnewsuite.b2clogin.com/pruebasnewsuite.onmicrosoft.com/B2C_1_sisu",
       },
       forgotPassword: {
-          authority: "https://<AAD B2C Name>.b2clogin.com/<AAD B2C Name>.onmicrosoft.com/<Forgot Password Name - in the form of B2C_1_xxx>",
+          authority: "https://pruebasnewsuite.b2clogin.com/pruebasnewsuite.onmicrosoft.com/B2C_1_reset_password",
       },
+      /*
       editProfile: {
           authority: "https://<AAD B2C Name>.b2clogin.com/<AAD B2C Name>.onmicrosoft.com/<Edit Profile Name - in the form of B2C_1_xxx>"
-      }
+      }*/
   },
   authorityDomain: "pruebasnewsuite.b2clogin.com"
 }
 
-export const msalConfig2 = {
-    auth: {
-      clientId: "d754ce82-c8b8-45c5-a556-36810253d8e5",  // 📌 Asegúrate de usar el correcto
-      authority: "https://pruebasnewsuite.b2clogin.com/pruebasnewsuite.onmicrosoft.com/B2C_1_sisu",
-      knownAuthorities: ["pruebasnewsuite.b2clogin.com"],
-      redirectUri: "http://localhost:3000",
-    },
-    cache: {
-      cacheLocation: "sessionStorage",
-      storeAuthStateInCookie: true,
-    }
-  };
-
   export const msalConfig = {
     auth: {
-        clientId: "d754ce82-c8b8-45c5-a556-36810253d8e5", 
+        clientId: "1ead3e1a-11a8-4ce0-811f-d58f18da3ee8", 
         authority: b2cPolicies.authorities.signUpSignIn.authority, 
         knownAuthorities: [b2cPolicies.authorityDomain], 
-        redirectUri: "http://localhost:3000",
+        redirectUri: "https://agreeable-sand-0d908c70f.4.azurestaticapps.net",
         postLogoutRedirectUri: "/",
         navigateToLoginRequestUrl: false, 
     },
@@ -74,7 +62,7 @@ export const msalConfig2 = {
 };
   
   export const loginRequest = {
-    scopes: ["openid", "offline_access", "profile"]
+    scopes: ["openid", "profile", "https://pruebasnewsuite.onmicrosoft.com/ejemplo/Leer"]
   };
 
   

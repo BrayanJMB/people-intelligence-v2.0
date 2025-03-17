@@ -4,7 +4,7 @@ import "./layout.css";
 import Nav from "../nav-lateral/nav";
 import ContainerCards from "../Home/Cards-home/cards";
 import Table from "../Home/table/table";
-
+import { useMsal } from "@azure/msal-react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -71,7 +71,8 @@ export default function LayoutPrincipal() {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef(null);
   const [settingsModal, setSettingsModal] = useState(false);
-
+  // Extraemos la instancia de MSAL y sus propiedades
+  const { instance, accounts, inProgress } = useMsal();
   // manejo de el icono de la empresa dashboard principal
   const IconoPeople = "/assets/img/people-icon.jpg";
 
@@ -322,12 +323,15 @@ export default function LayoutPrincipal() {
   // log out
   const navigate = useNavigate();
 
+  useEffect(() => {
+    navigate("/dashboard");
+  }, []);
+  
   const handleLogout = () => {
-    // Borramos el token del localStorage
-    localStorage.removeItem("token");
+    instance.logoutRedirect().catch((error) => {
+      console.error("Error al cerrar sesión:", error);
+    });
 
-    // Redirigimos al usuario a la página principal
-    navigate("/");
   };
 
   // edit user
@@ -674,7 +678,11 @@ export default function LayoutPrincipal() {
                     : "bg-white"
                 }`}
               >
-                <IconUserFilled className={`w-full h-full text-[#ccc] ${ data.image ? "hidden":"block"}`} />
+                <IconUserFilled
+                  className={`w-full h-full text-[#ccc] ${
+                    data.image ? "hidden" : "block"
+                  }`}
+                />
               </label>
             </div>
 
@@ -704,7 +712,7 @@ export default function LayoutPrincipal() {
                 style={{
                   background: `${selectedBtnSecundarioColor}`,
                   color: `${selectedBtnSecundarioColorTexto}`,
-                  border: `1px solid ${selectedBtnSecundarioColorTexto}`
+                  border: `1px solid ${selectedBtnSecundarioColorTexto}`,
                 }}
               >
                 Cancelar
