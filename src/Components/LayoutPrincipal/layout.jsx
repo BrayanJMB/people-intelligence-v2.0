@@ -17,7 +17,7 @@ import ListadoEncuestas from "../Listado-encuestas/Listado-encuestas";
 import FormEncuestas from "../PlantillasEncuestas/PlantillaEncuestas";
 import CreatePlantilla from "../PlantillasEncuestas/CreatePlantillasForm/createPlantilla";
 import AdministrarPlantillas from "../PlantillasEncuestas/administrarPlantillas/administrarPlantillas";
-
+import { useAuth } from "../../App";
 // rutas
 import LiveConversations from "../Live-Conversations/Live-Conversations";
 import CrearConversacion from "../Live-Conversations/Crear-conversacion/Crear";
@@ -73,6 +73,7 @@ export default function LayoutPrincipal() {
   const [settingsModal, setSettingsModal] = useState(false);
   // Extraemos la instancia de MSAL y sus propiedades
   const { instance, accounts, inProgress } = useMsal();
+  const { accessToken, userRoles } = useAuth();
   // manejo de el icono de la empresa dashboard principal
   const IconoPeople = "/assets/img/people-icon.jpg";
 
@@ -326,12 +327,11 @@ export default function LayoutPrincipal() {
   useEffect(() => {
     navigate("/dashboard");
   }, []);
-  
+
   const handleLogout = () => {
     instance.logoutRedirect().catch((error) => {
       console.error("Error al cerrar sesión:", error);
     });
-
   };
 
   // edit user
@@ -497,11 +497,15 @@ export default function LayoutPrincipal() {
                         Administrar compañía
                       </li>
                     </Link>
-                    <Link to={"/administrar-usuario"}>
-                      <li className="py-1 px-4 hover:bg-gray-100 cursor-pointer">
-                        Administrar usuario
-                      </li>
-                    </Link>
+                    {userRoles.some(
+                      (item) => item.trim() === "Journey"
+                    ) && (
+                      <Link to={"/administrar-usuario"}>
+                        <li className="py-1 px-4 hover:bg-gray-100 cursor-pointer">
+                          Administrar usuario
+                        </li>
+                      </Link>
+                    )}
                     <Link to={"/administrar-roles"}>
                       <li className="py-1 px-4 hover:bg-gray-100 cursor-pointer">
                         Administrar rol

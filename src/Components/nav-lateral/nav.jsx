@@ -10,11 +10,12 @@ import {
   IconUserFilled,
 } from "@tabler/icons-react";
 
+import { useAuth } from "../../App";
 export default function Nav({ colorOptions, titulo }) {
   const ruta = location.pathname.toLowerCase();
   const id = ruta.split("/").pop();
-
-  const getTituloPagina = (ruta) => {    
+  const { accessToken, userRoles } = useAuth();
+  const getTituloPagina = (ruta) => {
     if (ruta === "/") return "Dashboard";
     if (ruta === "/dashboard") return "Dashboard";
     if (ruta === "/employeejourney") return "Employee Journey";
@@ -38,13 +39,15 @@ export default function Nav({ colorOptions, titulo }) {
   };
 
   // Estado para almacenar el título de la página
-  const [activeLink, setActiveLink] = useState(getTituloPagina(location.pathname));
+  const [activeLink, setActiveLink] = useState(
+    getTituloPagina(location.pathname)
+  );
 
   // Actualizar el título y el estado activeLink cada vez que cambia la ruta
   useEffect(() => {
     const title = getTituloPagina(location.pathname);
     setActiveLink(title);
-    titulo(title); 
+    titulo(title);
   }, [location.pathname, titulo]);
 
   // Manejador de clic para actualizar el título cuando se hace clic en un enlace
@@ -78,41 +81,43 @@ export default function Nav({ colorOptions, titulo }) {
         </span>
         <span className="nav-text">Dashboard</span>
       </Link>
-      <Link
-        to="/employeejourney"
-        className={`nav-item ${
-          activeLink == "Employee Journey" ||
-          activeLink == "Plantillas de Encuestas" ||
-          activeLink == "Crear Plantilla" ||
-          activeLink == "Editar Encuesta" ||
-          activeLink == "Administrar Encuestas"
-            ? "active"
-            : ""
-        }`}
-        onClick={() => handleLinkClick("Employee Journey")}
-      >
-        <span className="icon mx-3 p-2">
-          <IconAlignBoxBottomCenterFilled
-            {...(activeLink === "Employee Journey" ||
-            activeLink === "Plantillas de Encuestas" ||
-            activeLink === "Crear Plantilla" ||
+      {userRoles.some((item) => item.trim() === "Journey") && (
+        <Link
+          to="/employeejourney"
+          className={`nav-item ${
+            activeLink == "Employee Journey" ||
+            activeLink == "Plantillas de Encuestas" ||
+            activeLink == "Crear Plantilla" ||
             activeLink == "Editar Encuesta" ||
-            activeLink === "Administrar Encuestas"
-              ? {}
-              : { color: "inherit" })}
-            className={`${
-              activeLink == "Employee Journey" ||
-              activeLink == "Plantillas de Encuestas" ||
+            activeLink == "Administrar Encuestas"
+              ? "active"
+              : ""
+          }`}
+          onClick={() => handleLinkClick("Employee Journey")}
+        >
+          <span className="icon mx-3 p-2">
+            <IconAlignBoxBottomCenterFilled
+              {...(activeLink === "Employee Journey" ||
+              activeLink === "Plantillas de Encuestas" ||
+              activeLink === "Crear Plantilla" ||
               activeLink == "Editar Encuesta" ||
-              activeLink == "Crear Plantilla" ||
-              activeLink == "Administrar Encuestas"
-                ? "iconActive"
-                : ""
-            }`}
-          ></IconAlignBoxBottomCenterFilled>
-        </span>
-        <span className="nav-text">Employee Journey</span>
-      </Link>
+              activeLink === "Administrar Encuestas"
+                ? {}
+                : { color: "inherit" })}
+              className={`${
+                activeLink == "Employee Journey" ||
+                activeLink == "Plantillas de Encuestas" ||
+                activeLink == "Editar Encuesta" ||
+                activeLink == "Crear Plantilla" ||
+                activeLink == "Administrar Encuestas"
+                  ? "iconActive"
+                  : ""
+              }`}
+            ></IconAlignBoxBottomCenterFilled>
+          </span>
+          <span className="nav-text">Employee Journey</span>
+        </Link>
+      )}
       <Link
         to="/live-conversations"
         className={`nav-item ${
@@ -132,27 +137,29 @@ export default function Nav({ colorOptions, titulo }) {
         </span>
         <span className="nav-text">Dynamic Live Conversations</span>
       </Link>
-      <Link
-        to="/advanced-analytics"
-        className={`nav-item cursor-default ${
-          activeLink == "Advanced Analytics & Dashboards" ? "active" : ""
-        }`}
-        onClick={() => handleLinkClick("Advanced Analytics & Dashboards")} // Pasas el título 'Advanced Analytics & Dashboards'
-      >
-        <span className="icon mx-3 p-2">
-          <IconChartAreaFilled
-            {...(activeLink == "Advanced Analytics & Dashboards"
-              ? {}
-              : { color: "inherit" })}
-            className={`${
-              activeLink == "Advanced Analytics & Dashboards"
-                ? "iconActive"
-                : ""
-            }`}
-          ></IconChartAreaFilled>
-        </span>
-        <span className="nav-text">Advanced Analytics & Dashboards</span>
-      </Link>
+      {userRoles.some((item) => item.trim() === "PowerBiDashboard") && (
+        <Link
+          to="/advanced-analytics"
+          className={`nav-item cursor-default ${
+            activeLink == "Advanced Analytics & Dashboards" ? "active" : ""
+          }`}
+          onClick={() => handleLinkClick("Advanced Analytics & Dashboards")} // Pasas el título 'Advanced Analytics & Dashboards'
+        >
+          <span className="icon mx-3 p-2">
+            <IconChartAreaFilled
+              {...(activeLink == "Advanced Analytics & Dashboards"
+                ? {}
+                : { color: "inherit" })}
+              className={`${
+                activeLink == "Advanced Analytics & Dashboards"
+                  ? "iconActive"
+                  : ""
+              }`}
+            ></IconChartAreaFilled>
+          </span>
+          <span className="nav-text">Advanced Analytics & Dashboards</span>
+        </Link>
+      )}
       <div
         className={`relative group flex-col w-full nav-item cursor-default ${
           ["Empresas", "Empleados", "Departamentos", "Otros campos"].includes(
