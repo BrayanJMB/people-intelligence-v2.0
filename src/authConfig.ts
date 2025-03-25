@@ -21,12 +21,14 @@ export const b2cPolicies = {
   authorityDomain: "pruebasnewsuite.b2clogin.com"
 }
 
+    const currentOrigin = window.location.origin;
+
   export const msalConfig = {
     auth: {
         clientId: "1ead3e1a-11a8-4ce0-811f-d58f18da3ee8", 
         authority: b2cPolicies.authorities.signUpSignIn.authority, 
         knownAuthorities: [b2cPolicies.authorityDomain], 
-        redirectUri: "https://agreeable-sand-0d908c70f.4.azurestaticapps.net",
+        redirectUri: currentOrigin,
         postLogoutRedirectUri: "/",
         navigateToLoginRequestUrl: false, 
     },
