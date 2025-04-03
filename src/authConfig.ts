@@ -28,7 +28,7 @@ export const b2cPolicies = {
         clientId: "1ead3e1a-11a8-4ce0-811f-d58f18da3ee8", 
         authority: b2cPolicies.authorities.signUpSignIn.authority, 
         knownAuthorities: [b2cPolicies.authorityDomain], 
-        redirectUri: currentOrigin,
+        redirectUri: "http://localhost:5173/",//currentOrigin,
         postLogoutRedirectUri: "/",
         navigateToLoginRequestUrl: false, 
     },

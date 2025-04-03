@@ -11,7 +11,8 @@ import {
   IconArrowBigLeftFilled,
   IconArrowLeft,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { AllCompanies } from "./services/getAllCompanies.service";
 
 export default function InformationEmpresas() {
   const empresas = [
@@ -52,7 +53,7 @@ export default function InformationEmpresas() {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [step, setStep] = useState(1);
-
+  const [companies, setCompanies] = useState("");
   // Función para manejar los pasos del modal
   const handleNextStep = () => {
     setCurrentStep((prevStep) => prevStep + 1);
@@ -73,10 +74,10 @@ export default function InformationEmpresas() {
   // Calcula el índice de los elementos mostrados en la página actual
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = empresas.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = companies.slice(indexOfFirstItem, indexOfLastItem);
 
   // Número total de páginas
-  const totalPages = Math.ceil(empresas.length / itemsPerPage);
+  const totalPages = Math.ceil(companies.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -219,7 +220,20 @@ export default function InformationEmpresas() {
       btnSecundarioColorTexto: "",
     });
   };
-
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const data = await AllCompanies();
+        console.log(data);
+        setCompanies(data)
+      } catch (error) {
+        console.error("Error al obtener las compañías:", error);
+      }
+    };
+  
+    fetchCompanies();
+  }, []);
+  
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
@@ -281,15 +295,15 @@ export default function InformationEmpresas() {
                         <img
                           className="w-[30px] h-[30px] rounded-md"
                           src={empresa.img}
-                          alt={`Imagen de ${empresa.nombre}`}
+                          alt={`Imagen de ${empresa.businessName}`}
                         />
-                        {empresa.nombre}
+                        {empresa.businessName}
                       </p>
                     </td>
-                    <td className="py-5 px-4 flex gap-2">{empresa.pais}</td>
-                    <td className="py-5 px-4">{empresa.sedes}</td>
-                    <td className="py-5 px-4">{empresa.tamaño}</td>
-                    <td className="py-5 px-4">{empresa.sector}</td>
+                    <td className="py-5 px-4 flex gap-2">{empresa.businessName}</td>
+                    <td className="py-5 px-4">{empresa.businessName}</td>
+                    <td className="py-5 px-4">{empresa.businessName}</td>
+                    <td className="py-5 px-4">{empresa.businessName}</td>
                     <td className="py-5 px-4">
                       <span className="flex gap-1">
                         <IconPencil onClick={() => handleEdit(empresa)} />
