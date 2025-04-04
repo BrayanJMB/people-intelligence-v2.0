@@ -13,6 +13,9 @@ import {
 } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { AllCompanies } from "./services/getAllCompanies.service";
+import { AllCountries } from "./services/getAllCountries.service";
+import { AllSectors } from "./services/getAllSector.service";
+import { fetchAllSizeCompanies } from "./services/sizeCompany.services";
 
 export default function InformationEmpresas() {
   const empresas = [
@@ -54,6 +57,9 @@ export default function InformationEmpresas() {
   const [currentStep, setCurrentStep] = useState(1);
   const [step, setStep] = useState(1);
   const [companies, setCompanies] = useState("");
+  const [countries, setCountries] = useState("");
+  const [sectors, setSectors] = useState("");
+  const [sizeCompanies, setSizeCompanies] = useState("");
   // Función para manejar los pasos del modal
   const handleNextStep = () => {
     setCurrentStep((prevStep) => prevStep + 1);
@@ -74,10 +80,10 @@ export default function InformationEmpresas() {
   // Calcula el índice de los elementos mostrados en la página actual
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = companies.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = empresas.slice(indexOfFirstItem, indexOfLastItem);
 
   // Número total de páginas
-  const totalPages = Math.ceil(companies.length / itemsPerPage);
+  const totalPages = Math.ceil(empresas.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -225,15 +231,45 @@ export default function InformationEmpresas() {
       try {
         const data = await AllCompanies();
         console.log(data);
-        setCompanies(data)
+        setCompanies(data);
       } catch (error) {
         console.error("Error al obtener las compañías:", error);
       }
     };
-  
+
+    const fetchCountries = async () => {
+      try {
+        const data = await AllCountries();
+        setCountries(data);
+      } catch (error) {
+        console.error("Error al obtener las compañías:", error);
+      }
+    };
+    const fetchSector = async () => {
+      try {
+        const data = await AllSectors();
+        setSectors(data);
+      } catch (error) {
+        console.error("Error al obtener las compañías:", error);
+      }
+    };
+
+    const fetchSizeCompany = async () => {
+      try {
+        const data = await fetchAllSizeCompanies();
+        setSizeCompanies(data);
+      } catch (error) {
+        console.error("Error al obtener las compañías:", error);
+      }
+    };
     fetchCompanies();
+    fetchCountries();
+    fetchSector();
+    fetchSizeCompany();
   }, []);
-  
+
+  useEffect(() => {}, []);
+
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
@@ -300,7 +336,9 @@ export default function InformationEmpresas() {
                         {empresa.businessName}
                       </p>
                     </td>
-                    <td className="py-5 px-4 flex gap-2">{empresa.businessName}</td>
+                    <td className="py-5 px-4 flex gap-2">
+                      {empresa.businessName}
+                    </td>
                     <td className="py-5 px-4">{empresa.businessName}</td>
                     <td className="py-5 px-4">{empresa.businessName}</td>
                     <td className="py-5 px-4">{empresa.businessName}</td>
@@ -401,7 +439,7 @@ export default function InformationEmpresas() {
               <div className="grid grid-cols-2 gap-x-4">
                 <div className="col-span-1">
                   <label htmlFor="nombre" className="text-[14px]">
-                    Nombre de compañía
+                    Nombre de empresa
                   </label>
                   <input
                     type="text"
@@ -410,7 +448,7 @@ export default function InformationEmpresas() {
                     onChange={(e) =>
                       setData((prev) => ({ ...prev, nombre: e.target.value }))
                     }
-                    placeholder="Escribe aquí"
+                    placeholder="Ingresa el nombre de la empresa"
                     className="w-full p-2 border rounded mb-4"
                   />
                 </div>
@@ -419,16 +457,21 @@ export default function InformationEmpresas() {
                   <label htmlFor="pais" className="text-[14px]">
                     País
                   </label>
-                  <input
-                    type="text"
+                  <select
                     name="pais"
                     value={data.pais}
                     onChange={(e) =>
                       setData((prev) => ({ ...prev, pais: e.target.value }))
                     }
-                    placeholder="País"
                     className="w-full p-2 border rounded mb-4"
-                  />
+                  >
+                    <option value="">Seleccione un país</option>
+                    {countries.map((pais) => (
+                      <option key={pais.id} value={pais.id}>
+                        {pais.value}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="col-span-1">
@@ -442,7 +485,7 @@ export default function InformationEmpresas() {
                     onChange={(e) =>
                       setData((prev) => ({ ...prev, sedes: e.target.value }))
                     }
-                    placeholder="Cantidad de sedes"
+                    placeholder="Ingresa la sede"
                     className="w-full p-2 border rounded mb-4"
                   />
                 </div>
@@ -451,7 +494,7 @@ export default function InformationEmpresas() {
                   <label htmlFor="tamaño" className="text-[14px]">
                     Tamaño de la empresa
                   </label>
-                  <input
+                  <select
                     type="text"
                     name="tamaño"
                     value={data.tamaño}
@@ -460,14 +503,21 @@ export default function InformationEmpresas() {
                     }
                     placeholder="Tamaño"
                     className="w-full p-2 border rounded mb-4"
-                  />
+                  >
+                    <option value="">Seleccione un tamaño de empresa</option>
+                    {sizeCompanies.map((sizeCompany) => (
+                      <option key={sizeCompany.id} value={sizeCompany.id}>
+                        {sizeCompany.quantityEmployess}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="col-span-2">
                   <label htmlFor="sector" className="text-[14px]">
                     Sector
                   </label>
-                  <input
+                  <select
                     type="text"
                     name="sector"
                     value={data.sector}
@@ -476,7 +526,14 @@ export default function InformationEmpresas() {
                     }
                     placeholder="Sector"
                     className="w-full p-2 border rounded mb-4"
-                  />
+                  >
+                    <option value="">Seleccione un sector</option>
+                    {sectors.map((sector) => (
+                      <option key={sector.id} value={sector.id}>
+                        {sector.sectorName}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="col-span-2">
