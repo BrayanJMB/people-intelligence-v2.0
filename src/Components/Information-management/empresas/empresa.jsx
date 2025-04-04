@@ -13,7 +13,7 @@ import {
 } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { AllCompanies } from "./services/getAllCompanies.service";
-import { AllCountries } from "./services/getAllCountries.service";
+import { AllCountries, createCompany } from "./services/country.service";
 import { AllSectors } from "./services/getAllSector.service";
 import { fetchAllSizeCompanies } from "./services/sizeCompany.services";
 
@@ -126,11 +126,7 @@ export default function InformationEmpresas() {
 
   const handleCreate = () => {
     setStep(1);
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    console.log("Creando categoría:", data);
-
+    createCompany(data);
     // Cerrar el modal y resetear estado
     setOpenModal(false);
     setData({
