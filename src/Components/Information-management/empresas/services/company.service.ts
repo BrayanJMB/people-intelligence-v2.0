@@ -29,6 +29,10 @@ export const createCompany = async (data : any) => {
     return response.data;
   };
 
+export const updateStatusCompany = async (idCompany : string, data : any) => {
+    const response = await api.patch(`/Company/${idCompany}/status`, data);
+    return response.data;
+};
 export const deleteCompany = async (idCompany : string) => {
     const response = await api.delete(`/Company/${idCompany}`);
     return response.data;

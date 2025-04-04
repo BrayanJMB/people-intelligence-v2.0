@@ -16,7 +16,7 @@ import { AllCompanies } from "./services/getAllCompanies.service";
 import { AllCountries } from "./services/country.service";
 import { AllSectors } from "./services/getAllSector.service";
 import { fetchAllSizeCompanies } from "./services/sizeCompany.services";
-import { createCompany, deleteCompany } from "./services/company.service";
+import { createCompany, deleteCompany, updateStatusCompany } from "./services/company.service";
 
 export default function InformationEmpresas() {
   const empresas = [
@@ -83,15 +83,25 @@ export default function InformationEmpresas() {
   const handlePrevStep = () => {
     setCurrentStep((prevStep) => prevStep - 1);
   };
-
+  const [switchStates, setSwitchStates] = useState({});
+  console.log(currentItems)
   // Estado de los switches
-  const [switchStates, setSwitchStates] = useState(
-    empresas.reduce(
-      (acc, empresa) => ({ ...acc, [empresa.id]: empresa.activo }),
-      {}
-    )
-  );
-
+  useEffect(() => {
+    if (
+      currentItems &&
+      currentItems.length > 0 &&
+      Object.keys(switchStates).length === 0
+    ) {
+      const initialStates = currentItems.reduce(
+        (acc, empresa) => ({ ...acc, [empresa.id]: empresa.isActive }),
+        {}
+      );
+      setSwitchStates(initialStates);
+    }
+  }, [currentItems]);
+  
+  
+  console.log(switchStates)
   const handleSort = (field) => {
     if (sortField === field) {
       // Si ya estamos ordenando por ese campo, invertimos la dirección
@@ -136,11 +146,13 @@ export default function InformationEmpresas() {
   };
 
   // Manejador de cambios para el switch
-  const handleSwitchChange = (id) => {
+  const handleSwitchChange = async (id) => {
+    const newValue = !switchStates[id];
     setSwitchStates((prevStates) => ({
       ...prevStates,
       [id]: !prevStates[id],
     }));
+    await updateStatusCompany(id, {isActive: newValue})
   };
 
   // modal empresas
