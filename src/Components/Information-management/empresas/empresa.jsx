@@ -13,9 +13,10 @@ import {
 } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { AllCompanies } from "./services/getAllCompanies.service";
-import { AllCountries, createCompany } from "./services/country.service";
+import { AllCountries } from "./services/country.service";
 import { AllSectors } from "./services/getAllSector.service";
 import { fetchAllSizeCompanies } from "./services/sizeCompany.services";
+import { createCompany, deleteCompany } from "./services/company.service";
 
 export default function InformationEmpresas() {
   const empresas = [
@@ -60,6 +61,20 @@ export default function InformationEmpresas() {
   const [countries, setCountries] = useState("");
   const [sectors, setSectors] = useState("");
   const [sizeCompanies, setSizeCompanies] = useState("");
+  const [sortField, setSortField] = useState("");
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedCompanyId, setSelectedCompanyId] = useState(null);
+
+
+  // Calcula el índice de los elementos mostrados en la página actual
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = companies.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Número total de páginas
+  const totalPages = Math.ceil(companies.length / itemsPerPage);
   // Función para manejar los pasos del modal
   const handleNextStep = () => {
     setCurrentStep((prevStep) => prevStep + 1);
@@ -77,13 +92,44 @@ export default function InformationEmpresas() {
     )
   );
 
-  // Calcula el índice de los elementos mostrados en la página actual
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = empresas.slice(indexOfFirstItem, indexOfLastItem);
+  const handleSort = (field) => {
+    if (sortField === field) {
+      // Si ya estamos ordenando por ese campo, invertimos la dirección
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      // Si cambiamos de campo, reiniciamos a ascendente
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
 
-  // Número total de páginas
-  const totalPages = Math.ceil(empresas.length / itemsPerPage);
+  const getValue = (empresa, field) => {
+    switch (field) {
+      case "businessName":
+        return empresa.businessName?.toLowerCase() || "";
+      case "country":
+        return empresa.country?.toLowerCase() || ""; // si es string
+      case "sedes":
+        return empresa.address?.toLowerCase() || "";
+      case "sizeCompany":
+        return empresa.sizeCompany?.toLowerCase() || "";
+      case "sector":
+        return empresa.sector?.toLowerCase() || "";
+      default:
+        return "";
+    }
+  };
+
+  const sortedCurrentItems = [...currentItems].sort((a, b) => {
+    if (!sortField) return 0;
+
+    const aVal = getValue(a, sortField);
+    const bVal = getValue(b, sortField);
+
+    if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
+    return 0;
+  });
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -169,6 +215,18 @@ export default function InformationEmpresas() {
     setOpenModal(true);
   };
 
+  const confirmDelete = (companyId) => {
+    setSelectedCompanyId(companyId);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    await deleteCompany(selectedCompanyId);
+    setShowDeleteModal(false);
+    setSelectedCompanyId(null);
+    fetchCompanies();
+  };
+
   const handleUpdate = () => {
     setStep(1);
     // Realiza la lógica para actualizar el mapa
@@ -222,17 +280,17 @@ export default function InformationEmpresas() {
       btnSecundarioColorTexto: "",
     });
   };
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        const data = await AllCompanies();
-        console.log(data);
-        setCompanies(data);
-      } catch (error) {
-        console.error("Error al obtener las compañías:", error);
-      }
-    };
 
+  const fetchCompanies = async () => {
+    try {
+      const data = await AllCompanies();
+      setCompanies(data);
+    } catch (error) {
+      console.error("Error al obtener las compañías:", error);
+    }
+  };
+
+  useEffect(() => {
     const fetchCountries = async () => {
       try {
         const data = await AllCountries();
@@ -264,8 +322,6 @@ export default function InformationEmpresas() {
     fetchSizeCompany();
   }, []);
 
-  useEffect(() => {}, []);
-
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
@@ -287,29 +343,98 @@ export default function InformationEmpresas() {
         <section className="my-6 bg-white p-8 rounded-[20px]">
           <div className="flex justify-between items-center px-4">
             <h2>Listado de empresas</h2>
-            <button className="flex gap-2 border-[#777777] border px-5 p-2 rounded-lg">
-              <span className="font-[400]">Ordenar</span>
-              <img className="" src={listIcon} alt="Ordenar empresas" />
-            </button>
+            <div className="relative inline-block text-left">
+              <button
+                className="flex gap-2 border-[#777777] border px-5 p-2 rounded-lg"
+                onClick={() => setShowSortMenu(!showSortMenu)}
+              >
+                <span className="font-[400]">Ordenar</span>
+                <img src={listIcon} alt="Ordenar empresas" />
+              </button>
+
+              {/*showSortMenu && (
+            <div className="absolute right-0 mt-2 w-60 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+              <ul className="text-sm text-gray-700">
+                {[
+                  { label: "Nombre de empresa", field: "businessName" },
+                  { label: "País", field: "country" },
+                  { label: "Tamaño", field: "sizeCompany" },
+                  { label: "Sector", field: "sector" }
+                ].map((item) => (
+                  <li key={item.field} className="border-b border-gray-100">
+                    <div className="px-4 pt-2 text-gray-800 font-medium">{item.label}</div>
+                    <div className="flex">
+                      <button
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                        onClick={() => {
+                          setSortField(item.field);
+                          setSortDirection("asc");
+                          setShowSortMenu(false);
+                        }}
+                      >
+                        Ascendente ↑
+                      </button>
+                      <button
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                        onClick={() => {
+                          setSortField(item.field);
+                          setSortDirection("desc");
+                          setShowSortMenu(false);
+                        }}
+                      >
+                        Descendente ↓
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            )*/}
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full bg-white">
               <thead>
                 <tr>
-                  <th className="py-5 px-4 text-left text-[#606060] font-normal">
-                    Nombre de empresa
+                  <th
+                    onClick={() => handleSort("businessName")}
+                    className="cursor-pointer"
+                  >
+                    Nombre de empresa{" "}
+                    {sortField === "businessName" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </th>
-                  <th className="py-5 px-4 text-left text-[#606060] font-normal">
-                    Pais
+                  <th
+                    onClick={() => handleSort("country")}
+                    className="cursor-pointer"
+                  >
+                    País{" "}
+                    {sortField === "country" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </th>
-                  <th className="py-5 px-4 text-left text-[#606060] font-normal">
-                    Sedes
+                  <th
+                    onClick={() => handleSort("sedes")}
+                    className="cursor-pointer"
+                  >
+                    Sedes{" "}
+                    {sortField === "sedes" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </th>
-                  <th className="py-5 px-4 text-left text-[#606060] font-normal">
-                    Tamaño de la empresa
+                  <th
+                    onClick={() => handleSort("sizeCompany")}
+                    className="cursor-pointer"
+                  >
+                    Tamaño{" "}
+                    {sortField === "sizeCompany" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </th>
-                  <th className="py-5 px-4 text-left text-[#606060] font-normal">
-                    Sector
+                  <th
+                    onClick={() => handleSort("sector")}
+                    className="cursor-pointer"
+                  >
+                    Sector{" "}
+                    {sortField === "sector" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="py-5 px-4 text-left text-[#606060] font-normal">
                     Opciones
@@ -320,54 +445,61 @@ export default function InformationEmpresas() {
                 </tr>
               </thead>
               <tbody>
-                {currentItems.map((empresa) => (
-                  <tr key={empresa.id}>
-                    <td className="py-5 px-4">
-                      <p className="flex items-center gap-4">
-                        <img
-                          className="w-[30px] h-[30px] rounded-md"
-                          src={empresa.img}
-                          alt={`Imagen de ${empresa.businessName}`}
-                        />
-                        {empresa.businessName}
-                      </p>
-                    </td>
-                    <td className="py-5 px-4 flex gap-2">
-                      {empresa.businessName}
-                    </td>
-                    <td className="py-5 px-4">{empresa.businessName}</td>
-                    <td className="py-5 px-4">{empresa.businessName}</td>
-                    <td className="py-5 px-4">{empresa.businessName}</td>
-                    <td className="py-5 px-4">
-                      <span className="flex gap-1">
-                        <IconPencil onClick={() => handleEdit(empresa)} />
-                        <IconTrash />
-                      </span>
-                    </td>
-                    <td className="py-5 px-4">
-                      <label className="inline-flex relative items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="sr-only"
-                          checked={switchStates[empresa.id]}
-                          onChange={() => handleSwitchChange(empresa.id)}
-                        />
-                        <div
-                          className={`w-11 h-6 rounded-full transition duration-200 ${
-                            switchStates[empresa.id]
-                              ? "!bg-blue-600"
-                              : "bg-gray-200"
-                          }`}
-                        ></div>
-                        <div
-                          className={`dot absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 transform ${
-                            switchStates[empresa.id] ? "translate-x-5" : ""
-                          }`}
-                        ></div>
-                      </label>
-                    </td>
-                  </tr>
-                ))}
+                {sortedCurrentItems &&
+                  sortedCurrentItems.map((empresa) => (
+                    <tr key={empresa.id}>
+                      <td className="py-5 px-4">
+                        <p className="flex items-center gap-4">
+                          <img
+                            className="w-[30px] h-[30px] rounded-md"
+                            src={empresa.logo}
+                            alt={`Imagen de ${empresa.businessName}`}
+                          />
+                          {empresa.businessName}
+                        </p>
+                      </td>
+                      <td className="py-5 px-4 flex gap-2">
+                        {empresa.country}
+                      </td>
+                      <td className="py-5 px-4">{empresa.address}</td>
+                      <td className="py-5 px-4">{empresa.sizeCompany}</td>
+                      <td className="py-5 px-4">{empresa.sector}</td>
+                      <td className="py-5 px-4">
+                        <span className="flex gap-1">
+                          <IconPencil
+                            className="cursor-pointer"
+                            onClick={() => handleEdit(empresa)}
+                          />
+                          <IconTrash
+                            className="cursor-pointer"
+                            onClick={() => confirmDelete(empresa.id)}
+                          />
+                        </span>
+                      </td>
+                      <td className="py-5 px-4">
+                        <label className="inline-flex relative items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={switchStates[empresa.id]}
+                            onChange={() => handleSwitchChange(empresa.id)}
+                          />
+                          <div
+                            className={`w-11 h-6 rounded-full transition duration-200 ${
+                              switchStates[empresa.id]
+                                ? "!bg-blue-600"
+                                : "bg-gray-200"
+                            }`}
+                          ></div>
+                          <div
+                            className={`dot absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 transform ${
+                              switchStates[empresa.id] ? "translate-x-5" : ""
+                            }`}
+                          ></div>
+                        </label>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -959,6 +1091,30 @@ export default function InformationEmpresas() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-[90%] max-w-md">
+            <h2 className="text-lg font-semibold mb-4">¿Estas seguro de eliminar la compañía?</h2>
+            <p className="text-gray-700 mb-6">
+              Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                onClick={handleConfirmDelete}
+              >
+                Sí, eliminar
+              </button>
+            </div>
           </div>
         </div>
       )}
