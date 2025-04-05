@@ -213,15 +213,16 @@ export default function InformationEmpresas() {
 
   // editar categorias
   const handleEdit = (empresa) => {
+    console.log(empresa)
     setStep(1);
     setEditing(empresa);
     setData({
-      nombre: empresa.nombre,
-      pais: empresa.pais,
-      sedes: empresa.sedes,
-      tamaño: empresa.tamaño,
-      sector: empresa.sector,
-      img: empresa.img,
+      nombre: empresa.businessName,
+      pais: empresa.idCountry,
+      sedes: empresa.address,
+      tamaño: empresa.idSizeCompany,
+      sector: empresa.idSector,
+      img: empresa.logo,
       activo: empresa.activo,
     });
     setOpenModal(true);
