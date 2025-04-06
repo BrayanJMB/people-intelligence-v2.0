@@ -7,24 +7,16 @@ import {
   IconPencil,
 } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
-import { AllCompaniesRoles } from "./services/compayRoles.service";
+import {
+  AllCompaniesRoles,
+  AllCompaniesRolesUnassigned,
+} from "./services/compayRoles.service";
 
 export default function Managecompany() {
   const [currentPage, setCurrentPage] = useState(1); // Página actual
-  const itemsPerPage = 6; // Número de reportes por página
-  const [step, setStep] = useState(1);
-  // Calcula el índice de los elementos mostrados en la página actual
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const [companiesWithRoles, setCompaniesWithRoles] = useState("");
-  const currentItems = companiesWithRoles && companiesWithRoles.slice(indexOfFirstItem, indexOfLastItem);
-  // Número total de páginas
-  const totalPages = Math.ceil(companiesWithRoles.length / itemsPerPage);
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
+  const [roles, setRoles] = useState([]); // roles filtrados
+  const [selectedCompanyId, setSelectedCompanyId] = useState("");
   // modal reportes
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -34,8 +26,25 @@ export default function Managecompany() {
     rol: "",
   });
 
+  const [step, setStep] = useState(1);
+  const itemsPerPage = 6; // Número de reportes por página
+  // Calcula el índice de los elementos mostrados en la página actual
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+  const currentItems =
+    companiesWithRoles &&
+    companiesWithRoles.slice(indexOfFirstItem, indexOfLastItem);
+  // Número total de páginas
+  const totalPages = Math.ceil(companiesWithRoles.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   const handleCreate = () => {
     const formData = new FormData();
+    console.log(data)
     formData.append("name", data.name);
     formData.append("rol", data.rol);
     console.log("Crear:", data);
@@ -96,7 +105,7 @@ export default function Managecompany() {
     },
   ];
 
-  const roles = [
+  const roles2 = [
     {
       rol: "Administrador",
     },
@@ -108,23 +117,56 @@ export default function Managecompany() {
     },
   ];
 
+  const handleCompanyChange = async (e) => {
+    const companyId = e.target.value;
+    setSelectedCompanyId(companyId);
+    console.log(companyId);
+    if (companyId) {
+      try {
+        AllCompaniesRolesUnassigned;
+        const res = await AllCompaniesRolesUnassigned(companyId);
+        setRoles(res);
+        console.log(res);
+      } catch (err) {
+        console.error("Error cargando roles", err);
+      }
+    } else {
+      setRoles([]); // reset si no hay compañía
+    }
+  };
+
   useEffect(() => {
     // Llamar al endpoint al cargar
     const fetchData = async () => {
       try {
         const response = await AllCompaniesRoles(); // ← Cambia por tu endpoint real
         // Transformamos para tener una fila por cada rol
-        console.log(response)
-        const items = response.flatMap((company) =>
-          company.roles.map((role) => ({
+        console.log(response);
+        const items = response.flatMap((company) => {
+          // Si no tiene roles o roles vacíos, retornamos una fila con "sin roles"
+          if (!company.roles || company.roles.length === 0) {
+            return [
+              {
+                id: null,
+                nombre: company.companyName,
+                rol: "Sin roles asignados",
+                imgCompany: company.logo,
+                companyId: company.companyId,
+              },
+            ];
+          }
+
+          // Si tiene roles, mapeamos normalmente
+          return company.roles.map((role) => ({
             id: role.id,
             nombre: company.companyName,
             rol: role.name,
             imgCompany: company.logo,
-            companyId: company.companyId
-          }))
-        );
-        console.log(items)
+            companyId: company.companyId,
+          }));
+        });
+
+        console.log(items);
         setCompaniesWithRoles(items);
       } catch (error) {
         console.error("Error al cargar compañías:", error);
@@ -133,7 +175,11 @@ export default function Managecompany() {
 
     fetchData();
   }, []);
-  
+
+  useEffect(() => {
+    console.log(roles);
+  }, [roles]);
+
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
@@ -175,33 +221,36 @@ export default function Managecompany() {
                 </tr>
               </thead>
               <tbody>
-                {currentItems && currentItems.map((reportes) => (
-                  <tr key={reportes.id}>
-                    <td className="py-5 px-4">
-                      <p className="flex items-center gap-4">
-                        <div className="img-contain bg-[#ECEEF6] p-1 rounded">
-                          <img
-                            src={reportes.imgCompany}
-                            className=""
-                            width={25}
-                            height={25}
-                            alt=""
+                {currentItems &&
+                  currentItems.map((reportes) => (
+                    <tr key={reportes.id}>
+                      <td className="py-5 px-4">
+                        <p className="flex items-center gap-4">
+                          <div className="img-contain bg-[#ECEEF6] p-1 rounded">
+                            <img
+                              src={reportes.imgCompany}
+                              className=""
+                              width={25}
+                              height={25}
+                              alt=""
+                            />
+                          </div>
+                          {reportes.nombre}
+                        </p>
+                      </td>
+                      <td className="py-5 px-4 flex gap-2 items-center">
+                        {reportes.rol}
+                      </td>
+                      <td className="py-5 px-4">
+                        <span className="flex gap-1">
+                          {/*<IconPencil onClick={() => handleEdit(reportes)} />*/}
+                          <IconTrash
+                            onClick={() => handleDelete(reportes.id)}
                           />
-                        </div>
-                        {reportes.nombre}
-                      </p>
-                    </td>
-                    <td className="py-5 px-4 flex gap-2 items-center">
-                      {reportes.rol}
-                    </td>
-                    <td className="py-5 px-4">
-                      <span className="flex gap-1">
-                        {/*<IconPencil onClick={() => handleEdit(reportes)} />*/}
-                        <IconTrash onClick={() => handleDelete(reportes.id)} />
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -261,17 +310,24 @@ export default function Managecompany() {
                 <select
                   name="nombre"
                   value={data.nombre}
-                  onChange={(e) =>
-                    setData((prev) => ({ ...prev, nombre: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    const companyId = e.target.value;
+
+                    // 1. Actualizar el estado de datos externos (como el nombre, por ejemplo)
+                    setData((prev) => ({ ...prev, nombre: companyId }));
+
+                    // 2. Llamar a handleCompanyChange para cargar los roles
+                    handleCompanyChange(e);
+                  }}
                   className="w-full p-2 border rounded mb-4"
                 >
                   <option value="">Selecciona una compañía</option>
-                  {Empresas.map((empresa, index) => (
-                    <option key={index} value={empresa.nombreCompany}>
-                      {empresa.nombreCompany}
-                    </option>
-                  ))}
+                  {currentItems &&
+                    currentItems.map((empresa, index) => (
+                      <option key={index} value={empresa.companyId}>
+                        {empresa.nombre}
+                      </option>
+                    ))}
                 </select>
               </div>
 
@@ -286,13 +342,22 @@ export default function Managecompany() {
                     setData((prev) => ({ ...prev, rol: e.target.value }))
                   }
                   className="w-full p-2 border rounded mb-4"
+                  disabled={!data.nombre || roles.length === 0}
                 >
-                  <option value="">Selecciona un rol</option>
-                  {roles.map((role, index) => (
-                    <option key={index} value={role.rol}>
-                      {role.rol}
-                    </option>
-                  ))}
+                  <option value="">
+                    {!data.nombre
+                      ? "Por favor selecciona una compañía"
+                      : roles.length === 0
+                      ? "Esta compañía ya tiene todos los roles"
+                      : "Selecciona un rol disponible"}
+                  </option>
+
+                  {roles.length > 0 &&
+                    roles.map((role, index) => (
+                      <option key={index} value={role.rol}>
+                        {role.name}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>
