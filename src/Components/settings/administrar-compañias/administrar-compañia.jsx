@@ -6,40 +6,20 @@ import {
   IconChevronRight,
   IconPencil,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { AllCompaniesRoles } from "./services/compayRoles.service";
 
 export default function Managecompany() {
-  const reportes = [
-    {
-      id: 1,
-      nombre: "Davivienda",
-      rol: "Administrador",
-      imgCompany: "/assets/img/davivienda-icon.jpg",
-    },
-    {
-      id: 2,
-      nombre: "Davivienda",
-      rol: "Administrador",
-      imgCompany: "/assets/img/davivienda-icon.jpg",
-    },
-    {
-      id: 3,
-      nombre: "Davivienda",
-      rol: "Administrador",
-      imgCompany: "/assets/img/davivienda-icon.jpg",
-    },
-  ];
-
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const itemsPerPage = 6; // Número de reportes por página
   const [step, setStep] = useState(1);
   // Calcula el índice de los elementos mostrados en la página actual
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = reportes.slice(indexOfFirstItem, indexOfLastItem);
-
+  const [companiesWithRoles, setCompaniesWithRoles] = useState("");
+  const currentItems = companiesWithRoles && companiesWithRoles.slice(indexOfFirstItem, indexOfLastItem);
   // Número total de páginas
-  const totalPages = Math.ceil(reportes.length / itemsPerPage);
+  const totalPages = Math.ceil(companiesWithRoles.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -128,12 +108,38 @@ export default function Managecompany() {
     },
   ];
 
+  useEffect(() => {
+    // Llamar al endpoint al cargar
+    const fetchData = async () => {
+      try {
+        const response = await AllCompaniesRoles(); // ← Cambia por tu endpoint real
+        // Transformamos para tener una fila por cada rol
+        console.log(response)
+        const items = response.flatMap((company) =>
+          company.roles.map((role) => ({
+            id: role.id,
+            nombre: company.companyName,
+            rol: role.name,
+            imgCompany: company.logo,
+            companyId: company.companyId
+          }))
+        );
+        console.log(items)
+        setCompaniesWithRoles(items);
+      } catch (error) {
+        console.error("Error al cargar compañías:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
         <section className="flex justify-between items-center bg-white p-8 px-11 rounded-[20px]">
           <div>
-            <h2 className="font-bold text-[22px]">Rol de la compañia</h2>
+            <h2 className="font-bold text-[22px]">Roles de la compañia</h2>
           </div>
           <button
             onClick={() => {
@@ -169,7 +175,7 @@ export default function Managecompany() {
                 </tr>
               </thead>
               <tbody>
-                {currentItems.map((reportes) => (
+                {currentItems && currentItems.map((reportes) => (
                   <tr key={reportes.id}>
                     <td className="py-5 px-4">
                       <p className="flex items-center gap-4">
@@ -190,7 +196,7 @@ export default function Managecompany() {
                     </td>
                     <td className="py-5 px-4">
                       <span className="flex gap-1">
-                        <IconPencil onClick={() => handleEdit(reportes)} />
+                        {/*<IconPencil onClick={() => handleEdit(reportes)} />*/}
                         <IconTrash onClick={() => handleDelete(reportes.id)} />
                       </span>
                     </td>
