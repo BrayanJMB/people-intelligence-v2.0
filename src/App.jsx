@@ -3,11 +3,9 @@ import { useMsal } from "@azure/msal-react";
 import { InteractionStatus } from "@azure/msal-browser";
 import { loginRequest, b2cPolicies } from "./authConfig";
 import LayoutPrincipal from "./Components/LayoutPrincipal/layout";
-import Login from "./login/login";
-
-// ✅ Crear un contexto global para el token
+import api from "./api/api";
+// ✅ Crear contexto global
 const AuthContext = createContext();
-
 export function useAuth() {
   return useContext(AuthContext);
 }
@@ -17,15 +15,17 @@ function App() {
   const [initialized, setInitialized] = useState(false);
   const [accessToken, setAccessToken] = useState(null);
   const [userRoles, setUserRoles] = useState([]);
+  const [company, setCompany] = useState(null);
+  const [checkingCompany, setCheckingCompany] = useState(true);
 
-  // Aseguramos que MSAL sepa qué cuenta es la activa (evita "no_account_error")
+  // ✅ Establecer cuenta activa
   useEffect(() => {
     if (accounts.length > 0) {
       instance.setActiveAccount(accounts[0]);
     }
   }, [accounts, instance]);
 
-  // 1. Procesar la respuesta de redirección con handleRedirectPromise()
+  // ✅ Procesar tokens y extraer roles
   useEffect(() => {
     instance
       .handleRedirectPromise()
@@ -34,8 +34,7 @@ function App() {
           setAccessToken(redirectResponse.accessToken);
           extractRolesFromToken(redirectResponse.accessToken);
         }
-        // Independientemente, intenta obtener el access token de forma silenciosa
-        // Pasando la cuenta activa para asegurar que MSAL sepa a quién pertenece el token
+
         return instance.acquireTokenSilent({
           ...loginRequest,
           account: instance.getActiveAccount(),
@@ -49,31 +48,23 @@ function App() {
       })
       .catch((error) => {
         console.error("Error en el flujo de tokens:", error);
-        // Si el error indica que el usuario olvidó su contraseña, redirigimos al flujo de reset
-        if (
-          error.errorMessage &&
-          error.errorMessage.indexOf("AADB2C90118") > -1
-        ) { 
+        if (error.errorMessage?.includes("AADB2C90118")) {
           instance
             .loginRedirect({
               ...loginRequest,
               authority: b2cPolicies.authorities.forgotPassword.authority,
             })
             .catch((err) =>
-              console.error(
-                "Error al redirigir al flujo de restablecimiento:",
-                err
-              )
+              console.error("Error al redirigir al flujo de restablecimiento:", err)
             );
         }
       });
   }, [initialized, instance]);
 
-  // 2. Inicializar MSAL (si es necesario)
+  // ✅ Inicializar MSAL
   useEffect(() => {
     const initializeMsal = async () => {
       try {
-        // Algunas versiones de MSAL no requieren initialize()
         if (instance.initialize) {
           await instance.initialize();
         }
@@ -85,7 +76,7 @@ function App() {
     initializeMsal();
   }, [instance]);
 
-  // 3. Si MSAL está inicializado, no hay interacción y no hay cuentas, iniciar login
+  // ✅ Si no hay sesión, forzar login
   useEffect(() => {
     if (
       initialized &&
@@ -98,14 +89,7 @@ function App() {
     }
   }, [initialized, inProgress, accounts, instance]);
 
-  // 4. Mientras se inicializa o se procesa la autenticación, mostramos un loader
-  if (
-    !initialized ||
-    (inProgress !== InteractionStatus.None && accounts.length === 0)
-  ) {
-    return <div>Cargando...</div>;
-  }
-
+  // ✅ Extraer roles desde el token
   function extractRolesFromToken(token) {
     try {
       const tokenParts = token.split(".");
@@ -119,9 +103,77 @@ function App() {
     }
   }
 
-  // 5. Si hay un usuario autenticado, renderizamos el LayoutPrincipal
+  // ✅ Consultar compañía asignada
+  useEffect(() => {
+    const fetchCompany = async () => {
+      if (!accessToken) return;
+      console.log("ok")
+      try {
+        const res = await api.get("User/compania-asignada", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        setCompany(res); // ejemplo: { companyId, nombre }
+      } catch (err) {
+        if (err.response?.status === 403) {
+          setCompany(null);
+        }
+        console.error("Error al consultar compañía:", err);
+      } finally {
+        setCheckingCompany(false);
+      }
+    };
+
+    fetchCompany();
+  }, [accessToken]);
+
+  useEffect(() => {
+    const activeAccount = instance.getActiveAccount();
+    console.log(activeAccount)
+    if (initialized && activeAccount && activeAccount.idTokenClaims?.newUser) {
+      console.log("✅ Usuario nuevo detectado");
+  
+      api.post("User/notificar-nuevo-usuario", {
+        email: activeAccount.username,
+        name: "okay",
+      });
+    }
+  }, [initialized, instance, accounts]);
+
+  // ✅ Mostrar loader general
+  if (
+    !initialized ||
+    (inProgress !== InteractionStatus.None && accounts.length === 0)
+  ) {
+    return <div>Cargando autenticación...</div>;
+  }
+
+  // ✅ Esperando respuesta del backend
+  if (checkingCompany) {
+    return <div>Verificando compañía asignada...</div>;
+  }
+
+  // ❌ Sin compañía asignada
+  if (accounts.length > 0 && company === null) {
+    return (
+      <div className="p-6 text-center text-red-600">
+        <h2 className="text-xl font-bold">Acceso restringido</h2>
+        <p>No tienes una compañía asignada. Contacta con el administrador.</p>
+        <button
+        onClick={() => instance.logoutRedirect({ postLogoutRedirectUri: "/" })}
+        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+      >
+        🔙 Cerrar sesión
+      </button>
+      </div>
+    );
+  }
+
+  // ✅ Si todo está bien
   return (
-    <AuthContext.Provider value={{ accessToken, userRoles }}>
+    <AuthContext.Provider value={{ accessToken, userRoles, company }}>
       {accounts.length > 0 && <LayoutPrincipal />}
     </AuthContext.Provider>
   );
