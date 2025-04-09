@@ -1,4 +1,4 @@
-import { createAsyncThunk,createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 //import client from '../../utils/axiosInstance';
 import api from '../../api/api';
@@ -29,7 +29,7 @@ export const fetchCompanies = createAsyncThunk(
 export const fetchActiveCompany = createAsyncThunk(
     'companies/fetchActiveCompany',
     async ({ idUser }) => {
-      const { data } = await client.get(`companias/GetCompanias/${idUser}`);
+      const { data } = await api.get(`Company/active-companies/${idUser}`);
       return data;
     }
   );
