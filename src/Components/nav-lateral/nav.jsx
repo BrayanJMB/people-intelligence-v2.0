@@ -81,7 +81,6 @@ export default function Nav({ colorOptions, titulo }) {
         </span>
         <span className="nav-text">Dashboard</span>
       </Link>
-      {userRoles.some((item) => item.trim() === "Journey") && (
         <Link
           to="/employeejourney"
           className={`nav-item ${
@@ -117,7 +116,7 @@ export default function Nav({ colorOptions, titulo }) {
           </span>
           <span className="nav-text">Employee Journey</span>
         </Link>
-      )}
+      
       <Link
         to="/live-conversations"
         className={`nav-item ${

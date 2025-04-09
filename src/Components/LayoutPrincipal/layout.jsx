@@ -219,22 +219,20 @@ export default function LayoutPrincipal() {
   ];
 
   useEffect(() => {
-    console.log(selectedOption)
     console.log(activeCompanies)
     const initialOption = activeCompanies.find(
       (option) => option.businessName === selectedOption
     );
     console.log(initialOption)
-    
     if (initialOption) {
-      setSelectedColor(initialOption.color_principal);
+      setSelectedColor(initialOption.colorPrincipal);
       setSelectedImg(initialOption.logo);
-      setSelectedColorSecundario(initialOption.color_secundario);
-      // setSelectedColorText(initialOption.color_texto);
+      setSelectedColorSecundario(initialOption.colorSecundario);
+      //setSelectedColorText("black");
       setSelectedIcon(initialOption.logo);
       setSelectedColorTerciario(initialOption.colorTerciario);
-      setSelectedHeaderColorTextos(initialOption.HeaderColorTextos);
-      setSelectedHeaderColorIcons(initialOption.HeaderColorIcons);
+      setSelectedHeaderColorTextos(initialOption.headerColorTextos);
+      setSelectedHeaderColorIcons(initialOption.headerColorIcons);
       setSelectedNavColorIcon(initialOption.navColorIcon);
       setSelectedNavColorFondoIcon(initialOption.navColorFondoIcon);
       setSelectedBtnPrimarioColor(initialOption.btnPrimarioColor);
@@ -242,7 +240,7 @@ export default function LayoutPrincipal() {
       setSelectedBtnSecundarioColor(initialOption.btnSecundarioColor);
       setSelectedBtnSecundarioColorTexto(initialOption.btnSecundarioColorTexto);
     }
-  }, [selectedOption]);
+  }, [selectedOption, activeCompanies]);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -251,8 +249,8 @@ export default function LayoutPrincipal() {
   const handleOptionClick = (option) => {
     setSelectedOption(option.businessName);
     setSelectedValue("Compañia");
-    setSelectedColor(option.color_principal);
-    setSelectedColorSecundario(option.color_secundario);
+    setSelectedColor(option.colorPrincipal);
+    setSelectedColorSecundario(option.colorSecundario);
     setSelectedImg(option.logo);
     setSelectedIcon(option.logo);
     setSelectedColorTerciario(option.colorTerciario);
@@ -376,8 +374,16 @@ export default function LayoutPrincipal() {
       if (activeCompanies.length === 0) return;
     
       const storedOption = localStorage.getItem("selectedOption");
+      // Buscar si la opción guardada aún existe
+      const storedCompany = activeCompanies.find(c => c.businessName === storedOption);
     
-      setSelectedOption(storedOption || activeCompanies[0].businessName);
+      if (storedCompany) {
+        setSelectedOption(storedCompany.businessName);
+      } else {
+        // Si no existe, usar la primera y actualizar el localStorage
+        setSelectedOption(activeCompanies[0].businessName);
+        localStorage.setItem("selectedOption", activeCompanies[0].businessName);
+      }
     }, [activeCompanies]);
 
   //Estado global
@@ -416,7 +422,7 @@ export default function LayoutPrincipal() {
             >
               <img
                 className="h-[50px] transition-all duration-300  rounded-b-xl object-contain"
-                src={selectedImg}
+                src={selectedImg || IconoPeople}
                 alt="Logo"
               />{" "}
             </div>

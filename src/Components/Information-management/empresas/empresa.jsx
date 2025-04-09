@@ -16,42 +16,16 @@ import { AllCompanies } from "./services/getAllCompanies.service";
 import { AllCountries } from "./services/country.service";
 import { AllSectors } from "./services/getAllSector.service";
 import { fetchAllSizeCompanies } from "./services/sizeCompany.services";
-import { createCompany, deleteCompany, updateStatusCompany } from "./services/company.service";
-
+import { createCompany, deleteCompany, updateCompany, updateStatusCompany } from "./services/company.service";
+import { useMsal } from "@azure/msal-react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchActiveCompany,selectCurrentCompany } from "../../../features/companies/companiesSlice";
 export default function InformationEmpresas() {
-  const empresas = [
-    {
-      id: 1,
-      nombre: "Encuesta de inicio de actividades laborales #1",
-      pais: "colombia",
-      sedes: "bogota",
-      tamaño: "hasta 200 empleados",
-      sector: "financiero",
-      img: ImgConversacion,
-      activo: false,
-    },
-    {
-      id: 2,
-      nombre: "Encuesta de fin de actividades laborales #2",
-      pais: "colombia",
-      sedes: "bogota",
-      tamaño: "hasta 200 empleados",
-      sector: "financiero",
-      img: ImgConversacion,
-      activo: true,
-    },
-    {
-      id: 3,
-      nombre: "Encuesta de rendimiento laboral #3",
-      pais: "colombia",
-      sedes: "bogota",
-      tamaño: "hasta 200 empleados",
-      sector: "financiero",
-      img: ImgConversacion,
-      activo: true,
-    },
-  ];
+  const IconoPeople = "../../assets/img/people-icon.jpg";
 
+  const dispatch = useDispatch();
+
+  const currentCompany = useSelector(selectCurrentCompany);
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const itemsPerPage = 6; // Número de empresas por página
 
@@ -66,7 +40,7 @@ export default function InformationEmpresas() {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
-
+  const { instance, accounts, inProgress } = useMsal();
 
   // Calcula el índice de los elementos mostrados en la página actual
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -75,6 +49,7 @@ export default function InformationEmpresas() {
 
   // Número total de páginas
   const totalPages = Math.ceil(companies.length / itemsPerPage);
+
   // Función para manejar los pasos del modal
   const handleNextStep = () => {
     setCurrentStep((prevStep) => prevStep + 1);
@@ -84,7 +59,6 @@ export default function InformationEmpresas() {
     setCurrentStep((prevStep) => prevStep - 1);
   };
   const [switchStates, setSwitchStates] = useState({});
-  console.log(currentItems)
   // Estado de los switches
   useEffect(() => {
     if (
@@ -100,9 +74,7 @@ export default function InformationEmpresas() {
     }
   }, [currentItems]);
   
-  
-  console.log(switchStates)
-  const handleSort = (field) => {
+    const handleSort = (field) => {
     if (sortField === field) {
       // Si ya estamos ordenando por ese campo, invertimos la dirección
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -153,6 +125,9 @@ export default function InformationEmpresas() {
       [id]: !prevStates[id],
     }));
     await updateStatusCompany(id, {isActive: newValue})
+    if (accounts[0].localAccountId) {
+      dispatch(fetchActiveCompany({ idUser: accounts[0].localAccountId }));
+    }
   };
 
   // modal empresas
@@ -182,11 +157,11 @@ export default function InformationEmpresas() {
     btnSecundarioColorTexto: "",
   });
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     setStep(1);
-    createCompany(data);
     // Cerrar el modal y resetear estado
     setOpenModal(false);
+    await createCompany(accounts[0].localAccountId ,data);
     setData({
       nombre: "",
       pais: "",
@@ -209,14 +184,15 @@ export default function InformationEmpresas() {
       btnSecundarioColor: "",
       btnSecundarioColorTexto: "",
     });
+    await fetchCompanies(); // 👈 Después trae los nuevos datos
   };
 
   // editar categorias
-  const handleEdit = (empresa) => {
-    console.log(empresa)
+  const handleEdit =(empresa) => {
     setStep(1);
     setEditing(empresa);
     setData({
+      idCompany: empresa.id,
       nombre: empresa.businessName,
       pais: empresa.idCountry,
       sedes: empresa.address,
@@ -224,6 +200,18 @@ export default function InformationEmpresas() {
       sector: empresa.idSector,
       img: empresa.logo,
       activo: empresa.activo,
+      // 🎨 Colores personalizados
+      colorPrimario: empresa.colorPrincipal || "",
+      colorsecundario: empresa.colorSecundario || "",
+      colorTerciario: empresa.colorTerciario || "",
+      HeaderColorTextos: empresa.headerColorTextos || "",
+      HeaderColorIcons: empresa.headerColorIcons || "",
+      navColorIcon: empresa.navColorIcon || "",
+      navColorFondoIcon: empresa.navColorFondoIcon || "",
+      btnPrimarioColor: empresa.btnPrimarioColor || "",
+      btnPrimarioColorTexto: empresa.btnPrimarioColorTexto || "",
+      btnSecundarioColor: empresa.btnSecundarioColor || "",
+      btnSecundarioColorTexto: empresa.btnSecundarioColorTexto || ""
     });
     setOpenModal(true);
   };
@@ -238,12 +226,15 @@ export default function InformationEmpresas() {
     setShowDeleteModal(false);
     setSelectedCompanyId(null);
     fetchCompanies();
+    if (accounts[0].localAccountId) {
+      dispatch(fetchActiveCompany({ idUser: accounts[0].localAccountId }));
+    }
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     setStep(1);
     // Realiza la lógica para actualizar el mapa
-    console.log("Actualizando mapa:", data);
+
     setOpenModal(false);
     setEditing(null);
     setData({
@@ -266,6 +257,11 @@ export default function InformationEmpresas() {
       btnSecundarioColor: "",
       btnSecundarioColorTexto: "",
     });
+    await updateCompany(data);
+    await fetchCompanies(); // 👈 Después trae los nuevos datos
+    if (accounts[0].localAccountId) {
+      dispatch(fetchActiveCompany({ idUser: accounts[0].localAccountId }));
+    }
   };
   const handleCancel = () => {
     setStep(1);
@@ -297,6 +293,7 @@ export default function InformationEmpresas() {
   const fetchCompanies = async () => {
     try {
       const data = await AllCompanies();
+      console.log(data)
       setCompanies(data);
     } catch (error) {
       console.error("Error al obtener las compañías:", error);
@@ -334,7 +331,6 @@ export default function InformationEmpresas() {
     fetchSector();
     fetchSizeCompany();
   }, []);
-
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
@@ -465,7 +461,7 @@ export default function InformationEmpresas() {
                         <p className="flex items-center gap-4">
                           <img
                             className="w-[30px] h-[30px] rounded-md"
-                            src={empresa.logo}
+                            src={empresa.logo || IconoPeople}
                             alt={`Imagen de ${empresa.businessName}`}
                           />
                           {empresa.businessName}
@@ -546,7 +542,7 @@ export default function InformationEmpresas() {
                 currentPage === totalPages ? "cursor-not-allowed" : ""
               }`}
               onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages}handleEdit
             >
               <IconChevronRight />
             </button>
