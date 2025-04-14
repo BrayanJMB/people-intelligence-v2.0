@@ -1,5 +1,5 @@
 export const informationCompanies = [
-  { header: "Nombre de empresa", field: "businessName", sortable: true },
+  { header: "Nombre de empresa", field: "businessName", sortable: true, hasImage: true},
   { header: "País", field: "country", sortable: true },
   { header: "Sedes", field: "address", sortable: true },
   { header: "Tamaño", field: "sizeCompany", sortable: true },

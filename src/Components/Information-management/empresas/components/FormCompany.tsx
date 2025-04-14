@@ -3,8 +3,8 @@ import { CompanyForm } from "../types/companyForm.types";
 import { CountryType } from "../types/country.types";
 import { SectorType } from "../types/sector.types";
 import { SizeCompanyType } from "../types/sizeCompany.types";
-import { InputField } from "./shared/InputField";
-import { SelectField } from "./shared/SelectField";
+import { InputField } from "../../../shared/InputField";
+import { SelectField } from "../../../shared/SelectField";
 import { buildFormSchema } from "../schemas/formCompany.schema";
 interface FormCompanyProps {
   data: CompanyForm;

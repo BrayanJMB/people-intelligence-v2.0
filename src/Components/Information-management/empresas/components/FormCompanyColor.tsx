@@ -1,5 +1,5 @@
 import { CompanyForm } from "../types/companyForm.types";
-import { InputColorField } from "./shared/InputColorField";
+import { InputColorField } from "../../../shared/InputColorField";
 
 interface FormCompanyColorProps {
   data: CompanyForm;

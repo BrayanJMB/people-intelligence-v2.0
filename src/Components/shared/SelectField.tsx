@@ -1,36 +1,41 @@
-import { CompanyForm } from "../../types/companyForm.types";
+import { CompanyForm } from "../Information-management/empresas/types/companyForm.types";
 
-interface InputFieldProps {
+export interface SelectFieldProps {
   label: string;
   name: keyof CompanyForm;
   value: string | number;
   onChange: (value: string) => void;
-  placeholder?: string;
+  options: { id: number; label: string }[]; // ✅ Asegúrate que aquí también sea SOLO `number`
   error?: string;
 }
 
-export const InputField = ({
+export const SelectField = ({
   label,
   name,
   value,
+  options,
   onChange,
-  placeholder,
   error,
-}: InputFieldProps) => (
+}: SelectFieldProps) => (
   <div className="col-span-1">
     <label htmlFor={name} className="text-[14px]">
       {label}
     </label>
-    <input
-      type="text"
+    <select
       name={name}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
       className={`w-full p-2 border rounded mb-1 ${
         error ? "border-red-500" : "border-gray-300"
       }`}
-    />
+    >
+      <option value="">Seleccione una opción</option>
+      {options.map((opt) => (
+        <option key={opt.id} value={opt.id}>
+          {opt.label}
+        </option>
+      ))}
+    </select>
     {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
   </div>
 );

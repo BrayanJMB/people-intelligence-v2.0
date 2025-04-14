@@ -9,3 +9,8 @@ export const AllCompaniesRoles = async () => {
     const response = await api.get(`/CompanyRole/${companyId}`);
     return response.data;
   };
+
+export const createCompanyRol = async (data : any) => {
+  const response = await api.post(`/CompanyRole`, data);
+  return response;
+};

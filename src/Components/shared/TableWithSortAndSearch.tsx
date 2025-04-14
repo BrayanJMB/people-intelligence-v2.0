@@ -6,6 +6,7 @@ type Column = {
   header: string;
   field: string;
   sortable?: boolean;
+  hasImage?: boolean;
 };
 
 type RowData = {
@@ -39,7 +40,8 @@ export const TableWithSortAndSearch: React.FC<Props> = ({
   onToggle,
   emptyMessage = "No hay resultados.",
   switchStates = {},
-}) => {
+}) => 
+  {
   return (
     <div className="overflow-x-auto">
       <table className="w-full bg-white">
@@ -115,7 +117,7 @@ export const TableWithSortAndSearch: React.FC<Props> = ({
 
                   return (
                     <td key={`${row.id}-${col.field}`} className="py-5 px-4">
-                      {col.field === "businessName" ? (
+                      {col.hasImage ? (
                         <p className="flex items-center gap-4">
                           <img
                             className="w-[30px] h-[30px] rounded-md"

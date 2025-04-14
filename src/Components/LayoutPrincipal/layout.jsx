@@ -517,15 +517,13 @@ export default function LayoutPrincipal() {
                         Administrar compañía
                       </li>
                     </Link>
-                    {userRoles.some(
-                      (item) => item.trim() === "Journey"
-                    ) && (
+
                       <Link to={"/administrar-usuario"}>
                         <li className="py-1 px-4 hover:bg-gray-100 cursor-pointer">
                           Administrar usuario
                         </li>
                       </Link>
-                    )}
+                    
                     <Link to={"/administrar-roles"}>
                       <li className="py-1 px-4 hover:bg-gray-100 cursor-pointer">
                         Administrar rol

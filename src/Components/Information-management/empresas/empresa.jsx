@@ -19,12 +19,12 @@ import { FormCompany } from "./components/FormCompany";
 import { DeleteModal } from "./components/DeleteModal";
 import { PaginatorTable } from "../../Paginator/PaginatorTable";
 import { useInformationLogic } from "./hooks/useInformation";
-import { getValue, sortItems } from "./utils/utils";
+import { getValue, sortItems } from "../../utils/utils";
 import { emptyCompanyForm } from "./initialValues";
 import { FormCompanyColor } from "./components/FormCompanyColor";
-import { StepNavigationButtons } from "./components/shared/StepNavigationButtons";
-import { useFilteredItems } from "./hooks/useFilteredItems";
-import { TableWithSortAndSearch } from "./components/shared/TableWithSortAndSearch";
+import { StepNavigationButtons } from "../../shared/StepNavigationButtons";
+import { useFilteredItems } from "../../Hooks/useFilteredItems";
+import { TableWithSortAndSearch } from "../../shared/TableWithSortAndSearch";
 import { informationCompanies } from "./schemas/tableCompany.schema";
 export default function InformationEmpresas() {
   const {
@@ -43,7 +43,6 @@ export default function InformationEmpresas() {
     fetchCompanies,
     loading,
   } = useInformationLogic();
-  const IconoPeople = "../../assets/img/people-icon.jpg";
   const dispatch = useDispatch();
   const currentCompany = useSelector(selectCurrentCompany);
   const [currentStep, setCurrentStep] = useState(1);

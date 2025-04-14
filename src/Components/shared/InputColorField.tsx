@@ -1,5 +1,5 @@
 // components/shared/InputColorField.tsx
-import { CompanyForm } from "../../types/companyForm.types";
+import { CompanyForm } from "../Information-management/empresas/types/companyForm.types";
 
 interface InputColorFieldProps {
   label: string;

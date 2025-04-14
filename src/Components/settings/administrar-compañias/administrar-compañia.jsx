@@ -1,22 +1,39 @@
-import listIcon from "/assets/svg/list.svg";
-import {
-  IconTrash,
-  IconPlus,
-  IconChevronLeft,
-  IconChevronRight,
-  IconPencil,
-} from "@tabler/icons-react";
-import { useState, useEffect } from "react";
+import { IconPlus } from "@tabler/icons-react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   AllCompaniesRoles,
   AllCompaniesRolesUnassigned,
+  createCompanyRol,
 } from "./services/compayRoles.service";
-
+import { PaginatorTable } from "../../Paginator/PaginatorTable";
+import { SelectField } from "../../shared/SelectField";
+import { StepNavigationButtons } from "../../shared/StepNavigationButtons";
+import { useFilteredItems } from "../../Hooks/useFilteredItems";
+import { informationCompanyRole } from "./schemas/informationCompanyRol.schema";
+import { getValue,sortItems } from "../../utils/utils";
+import { TableWithSortAndSearch } from "../../shared/TableWithSortAndSearch";
 export default function Managecompany() {
   const [currentPage, setCurrentPage] = useState(1); // Página actual
-  const [companiesWithRoles, setCompaniesWithRoles] = useState("");
+  const [companiesWithRoles, setCompaniesWithRoles] = useState([]);
   const [roles, setRoles] = useState([]); // roles filtrados
   const [selectedCompanyId, setSelectedCompanyId] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortField, setSortField] = useState("");
+  const [sortDirection, setSortDirection] = useState("asc");
+
+  const { filteredItems } = useFilteredItems(
+    companiesWithRoles,
+    "nombre",
+    searchTerm,
+    sortField,
+    sortDirection
+  );
+  // Paginación después del filtrado y ordenado
+  const itemsPerPage = 6; // Número de reportes por página
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+//const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
   // modal reportes
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -26,15 +43,7 @@ export default function Managecompany() {
     rol: "",
   });
 
-  const [step, setStep] = useState(1);
-  const itemsPerPage = 6; // Número de reportes por página
-  // Calcula el índice de los elementos mostrados en la página actual
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
-  const currentItems =
-    companiesWithRoles &&
-    companiesWithRoles.slice(indexOfFirstItem, indexOfLastItem);
   // Número total de páginas
   const totalPages = Math.ceil(companiesWithRoles.length / itemsPerPage);
 
@@ -43,12 +52,7 @@ export default function Managecompany() {
   };
 
   const handleCreate = () => {
-    const formData = new FormData();
-    console.log(data)
-    formData.append("name", data.name);
-    formData.append("rol", data.rol);
-    console.log("Crear:", data);
-
+    createCompanyRol({ id: data.nombre, roleId: data.rol });
     // Cerrar el modal y resetear estado
     setOpenModal(false);
     setData({
@@ -59,7 +63,6 @@ export default function Managecompany() {
 
   // editar categorias
   const handleEdit = (reportes) => {
-    setStep(1);
     setEditing(reportes);
     setData({
       nombre: reportes.nombre,
@@ -67,6 +70,23 @@ export default function Managecompany() {
     });
     setOpenModal(true);
   };
+
+  const handleSort = useCallback((field) => {
+    setSortField((prev) => {
+      if (prev === field) {
+        setSortDirection((dir) => (dir === "asc" ? "desc" : "asc"));
+        return prev;
+      } else {
+        setSortDirection("asc");
+        return field;
+      }
+    });
+  }, []);
+
+  const sortedCurrentItems = useMemo(() => {
+    return sortItems(currentItems, sortField, sortDirection, getValue);
+  }, [currentItems, sortField, sortDirection]);
+
 
   const handleUpdate = () => {
     // Realiza la lógica para actualizar el mapa
@@ -93,30 +113,6 @@ export default function Managecompany() {
     console.log("producto eliminado " + id);
   };
 
-  const Empresas = [
-    {
-      nombreCompany: "Davivienda",
-    },
-    {
-      nombreCompany: "Bancolombia",
-    },
-    {
-      nombreCompany: "Allianz",
-    },
-  ];
-
-  const roles2 = [
-    {
-      rol: "Administrador",
-    },
-    {
-      rol: "Usuario",
-    },
-    {
-      rol: "Invitado",
-    },
-  ];
-
   const handleCompanyChange = async (e) => {
     const companyId = e.target.value;
     setSelectedCompanyId(companyId);
@@ -141,7 +137,6 @@ export default function Managecompany() {
       try {
         const response = await AllCompaniesRoles(); // ← Cambia por tu endpoint real
         // Transformamos para tener una fila por cada rol
-        console.log(response);
         const items = response.flatMap((company) => {
           // Si no tiene roles o roles vacíos, retornamos una fila con "sin roles"
           if (!company.roles || company.roles.length === 0) {
@@ -150,7 +145,7 @@ export default function Managecompany() {
                 id: null,
                 nombre: company.companyName,
                 rol: "Sin roles asignados",
-                imgCompany: company.logo,
+                logo: company.logo,
                 companyId: company.companyId,
               },
             ];
@@ -161,12 +156,10 @@ export default function Managecompany() {
             id: role.id,
             nombre: company.companyName,
             rol: role.name,
-            imgCompany: company.logo,
+            logo: company.logo,
             companyId: company.companyId,
           }));
         });
-
-        console.log(items);
         setCompaniesWithRoles(items);
       } catch (error) {
         console.error("Error al cargar compañías:", error);
@@ -176,9 +169,18 @@ export default function Managecompany() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    console.log(roles);
-  }, [roles]);
+  const companyOptions = Array.from(
+    new Map(
+      currentItems &&
+        currentItems.map((empresa) => [
+          empresa.companyId,
+          {
+            id: empresa.companyId,
+            label: empresa.nombre,
+          },
+        ])
+    ).values()
+  );
 
   return (
     <>
@@ -198,97 +200,37 @@ export default function Managecompany() {
           </button>
         </section>
         <section className="my-6 bg-white p-8 rounded-[20px]">
-          <div className="flex justify-between items-center px-4">
-            <h2>Listado de reportes</h2>
-            <button className="flex gap-2 border-[#777777] border px-5 p-2 rounded-lg">
-              <span className="font-[400]">Ordenar</span>
-              <img className="" src={listIcon} alt="Ordenar reportes" />
-            </button>
+          <div className="flex justify-between items-center px-4 mb-4">
+            <h2 className="text-lg font-semibold">Listado de Reportes</h2>
+            <input
+              type="text"
+              placeholder="Buscar por nombre..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reinicia la paginación al buscar
+              }}
+              className="border px-3 py-2 rounded-md w-60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full bg-white">
-              <thead>
-                <tr>
-                  <th className="py-5 px-4 text-left text-[#606060] font-normal">
-                    Nombre de compañía
-                  </th>
-                  <th className="py-5 px-4 text-left text-[#606060] font-normal">
-                    Roles
-                  </th>
-                  <th className="py-5 px-4 text-left text-[#606060] font-normal">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentItems &&
-                  currentItems.map((reportes) => (
-                    <tr key={reportes.id}>
-                      <td className="py-5 px-4">
-                        <p className="flex items-center gap-4">
-                          <div className="img-contain bg-[#ECEEF6] p-1 rounded">
-                            <img
-                              src={reportes.imgCompany}
-                              className=""
-                              width={25}
-                              height={25}
-                              alt=""
-                            />
-                          </div>
-                          {reportes.nombre}
-                        </p>
-                      </td>
-                      <td className="py-5 px-4 flex gap-2 items-center">
-                        {reportes.rol}
-                      </td>
-                      <td className="py-5 px-4">
-                        <span className="flex gap-1">
-                          {/*<IconPencil onClick={() => handleEdit(reportes)} />*/}
-                          <IconTrash
-                            onClick={() => handleDelete(reportes.id)}
-                          />
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
+            <TableWithSortAndSearch
+              columns={informationCompanyRole}
+              data={sortedCurrentItems}
+              loading={null}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              onDelete={handleDelete}
+            />
 
-          {/* Paginador */}
-          <div className="flex justify-center mt-4">
-            <button
-              className={`px-3 py-1 mx-1 border ${
-                currentPage === 1 ? "cursor-not-allowed" : ""
-              }`}
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <IconChevronLeft />
-            </button>
-            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-              (pageNumber) => (
-                <button
-                  key={pageNumber}
-                  className={`px-3 py-1 mx-1 border ${
-                    currentPage === pageNumber ? "bg-gray-200" : ""
-                  }`}
-                  onClick={() => handlePageChange(pageNumber)}
-                >
-                  {pageNumber}
-                </button>
-              )
-            )}
-            <button
-              className={`px-3 py-1 mx-1 border ${
-                currentPage === totalPages ? "cursor-not-allowed" : ""
-              }`}
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <IconChevronRight />
-            </button>
           </div>
+          {/* Paginador */}
+          <PaginatorTable
+            currentPage={currentPage}
+            totalPages={totalPages}
+            handlePageChange={handlePageChange}
+          />
         </section>
       </section>
 
@@ -297,38 +239,23 @@ export default function Managecompany() {
           <div className="bg-white p-8 rounded-lg shadow-lg w-[800px]">
             <div className="flex items-center mb-4 gap-4">
               <h3 className="text-[22px] font-bold">
-                {editing ? "Editar rol" : "Crear rol"}
+                {editing ? "Editar rol" : "Asignar rol"}
               </h3>
             </div>
 
             {/* Control de pasos */}
             <div className="grid grid-cols-2 gap-x-4">
               <div className="col-span-2">
-                <label htmlFor="nombre" className="text-[14px]">
-                  Compañía
-                </label>
-                <select
+                <SelectField
+                  label="Compañía"
                   name="nombre"
                   value={data.nombre}
-                  onChange={(e) => {
-                    const companyId = e.target.value;
-
-                    // 1. Actualizar el estado de datos externos (como el nombre, por ejemplo)
-                    setData((prev) => ({ ...prev, nombre: companyId }));
-
-                    // 2. Llamar a handleCompanyChange para cargar los roles
-                    handleCompanyChange(e);
+                  options={companyOptions}
+                  onChange={(value) => {
+                    setData((prev) => ({ ...prev, nombre: value }));
+                    handleCompanyChange({ target: { value } }); // 👈 simula el evento si tu función lo espera así
                   }}
-                  className="w-full p-2 border rounded mb-4"
-                >
-                  <option value="">Selecciona una compañía</option>
-                  {currentItems &&
-                    currentItems.map((empresa, index) => (
-                      <option key={index} value={empresa.companyId}>
-                        {empresa.nombre}
-                      </option>
-                    ))}
-                </select>
+                />
               </div>
 
               <div className="col-span-2">
@@ -354,27 +281,18 @@ export default function Managecompany() {
 
                   {roles.length > 0 &&
                     roles.map((role, index) => (
-                      <option key={index} value={role.rol}>
+                      <option key={index} value={role.id}>
                         {role.name}
                       </option>
                     ))}
                 </select>
               </div>
             </div>
-            <div className="col-span-4 flex justify-end gap-4 mt-8">
-              <button
-                onClick={handleCancel}
-                className="btn btn-secundario px-4 py-2"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={editing ? handleUpdate : handleCreate}
-                className="btn btn-principal px-4 py-2"
-              >
-                {editing ? "Actualizar" : "Crear"}
-              </button>
-            </div>
+            <StepNavigationButtons
+              onCancel={handleCancel}
+              onSubmit={editing ? handleUpdate : handleCreate}
+              editing={editing}
+            />
           </div>
         </div>
       )}
