@@ -25,7 +25,8 @@ import { getValue, sortItems } from "./utils/utils";
 import { emptyCompanyForm } from "./initialValues";
 import { FormCompanyColor } from "./components/FormCompanyColor";
 import { StepNavigationButtons } from "./components/shared/StepNavigationButtons";
-
+import { useFilteredItems } from "./hooks/useFilteredItems";
+import CircularProgress from '@mui/material/CircularProgress';
 export default function InformationEmpresas() {
   const {
     data,
@@ -41,6 +42,7 @@ export default function InformationEmpresas() {
     setCurrentPage,
     itemsPerPage,
     fetchCompanies,
+    loading,
   } = useInformationLogic();
   const IconoPeople = "../../assets/img/people-icon.jpg";
   const dispatch = useDispatch();
@@ -50,11 +52,19 @@ export default function InformationEmpresas() {
   const [sortDirection, setSortDirection] = useState("asc");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const { accounts } = useMsal();
+  const { filteredItems, hasResults, emptyMessage } = useFilteredItems(
+    companies,
+    "businessName",
+    searchTerm,
+    sortField,
+    sortDirection
+  );
   // Calcula el índice de los elementos mostrados en la página actual
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = companies.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
 
   // Número total de páginas
   const totalPages = Math.ceil(companies.length / itemsPerPage);
@@ -114,7 +124,6 @@ export default function InformationEmpresas() {
     setOpenModal(false);
     await createCompany(accounts[0].localAccountId, data);
     setData(emptyCompanyForm);
-    set;
     await fetchCompanies(); // 👈 Después trae los nuevos datos
   };
 
@@ -215,8 +224,18 @@ export default function InformationEmpresas() {
           </button>
         </section>
         <section className="my-6 bg-white p-8 rounded-[20px]">
-          <div className="flex justify-between items-center px-4">
-            <h2>Listado de empresas</h2>
+          <div className="flex justify-between items-center px-4 mb-4">
+            <h2 className="text-lg font-semibold">Listado de empresas</h2>
+            <input
+              type="text"
+              placeholder="Buscar por nombre..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reinicia la paginación al buscar
+              }}
+              className="border px-3 py-2 rounded-md w-60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
           <div className="overflow-x-auto">
             <table className="w-full bg-white">
@@ -271,7 +290,13 @@ export default function InformationEmpresas() {
                 </tr>
               </thead>
               <tbody>
-                {sortedCurrentItems &&
+                {loading ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-6">
+                      <CircularProgress color="primary" />
+                    </td>
+                  </tr>
+                ) : hasResults ? (
                   sortedCurrentItems.map((empresa) => (
                     <tr key={empresa.id}>
                       <td className="py-5 px-4">
@@ -325,7 +350,14 @@ export default function InformationEmpresas() {
                         </label>
                       </td>
                     </tr>
-                  ))}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="text-center py-6 text-gray-500">
+                      {emptyMessage}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

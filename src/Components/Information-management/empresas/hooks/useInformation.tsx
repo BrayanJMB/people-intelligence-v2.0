@@ -16,6 +16,7 @@ export const useInformationLogic = () => {
     const [sectors, setSectors] = useState<SectorType[]>([]);
     const [sizeCompanies, setSizeCompanies] = useState<SizeCompanyType[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [loading, setLoading] = useState(Boolean);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const itemsPerPage = 6;
   
@@ -77,9 +78,12 @@ export const useInformationLogic = () => {
   
     const fetchAll = async () => {
       try {
+        setLoading(true); // empieza a cargar
         await Promise.all([fetchCompanies(), fetchCountries(), fetchSectors(), fetchSizes()]);
       } catch (error) {
         console.error("Error al obtener datos:", error);
+      }finally {
+        setLoading(false); // termina de cargar
       }
     };
   
@@ -103,6 +107,7 @@ export const useInformationLogic = () => {
       setCurrentPage,
       itemsPerPage,
       fetchCompanies, // ✅ expuesto al exterior
+      loading,
     };
   };
   
