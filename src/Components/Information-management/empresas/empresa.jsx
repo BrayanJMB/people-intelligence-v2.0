@@ -1,47 +1,53 @@
-import listIcon from "/assets/svg/list.svg";
-import ImgConversacion from "/assets/img/conversacion.jpg";
 import {
   IconTrash,
   IconPlus,
-  IconChevronLeft,
-  IconChevronRight,
   IconPencil,
-  IconUpload,
-  IconArrowBigLeft,
-  IconArrowBigLeftFilled,
   IconArrowLeft,
 } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { AllCompanies } from "./services/getAllCompanies.service";
-import { AllCountries } from "./services/country.service";
-import { AllSectors } from "./services/getAllSector.service";
-import { fetchAllSizeCompanies } from "./services/sizeCompany.services";
-import { createCompany, deleteCompany, updateCompany, updateStatusCompany } from "./services/company.service";
+import {
+  createCompany,
+  deleteCompany,
+  updateCompany,
+  updateStatusCompany,
+} from "./services/company.service";
 import { useMsal } from "@azure/msal-react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchActiveCompany,selectCurrentCompany } from "../../../features/companies/companiesSlice";
+import {
+  fetchActiveCompany,
+  selectCurrentCompany,
+} from "../../../features/companies/companiesSlice";
+import { FormCompany } from "./components/FormCompany";
+import { DeleteModal } from "./components/DeleteModal";
+import { PaginatorTable } from "../../Paginator/PaginatorTable";
+import { useInformationLogic } from "./hooks/useInformation";
 export default function InformationEmpresas() {
+  const {
+    data,
+    setData,
+    companies,
+    countries,
+    sectors,
+    sizeCompanies,
+    errors,
+    setErrors,
+    validateFields,
+    currentPage,
+    setCurrentPage,
+    itemsPerPage,
+  } = useInformationLogic();
+
   const IconoPeople = "../../assets/img/people-icon.jpg";
-
   const dispatch = useDispatch();
-
   const currentCompany = useSelector(selectCurrentCompany);
-  const [currentPage, setCurrentPage] = useState(1); // Página actual
-  const itemsPerPage = 6; // Número de empresas por página
-
   const [currentStep, setCurrentStep] = useState(1);
   const [step, setStep] = useState(1);
-  const [companies, setCompanies] = useState("");
-  const [countries, setCountries] = useState("");
-  const [sectors, setSectors] = useState("");
-  const [sizeCompanies, setSizeCompanies] = useState("");
   const [sortField, setSortField] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
-  const [showSortMenu, setShowSortMenu] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
-  const { instance, accounts, inProgress } = useMsal();
-
+  const { accounts } = useMsal();
   // Calcula el índice de los elementos mostrados en la página actual
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -52,6 +58,7 @@ export default function InformationEmpresas() {
 
   // Función para manejar los pasos del modal
   const handleNextStep = () => {
+    if (validateFields()) return;
     setCurrentStep((prevStep) => prevStep + 1);
   };
 
@@ -73,8 +80,8 @@ export default function InformationEmpresas() {
       setSwitchStates(initialStates);
     }
   }, [currentItems]);
-  
-    const handleSort = (field) => {
+
+  const handleSort = (field) => {
     if (sortField === field) {
       // Si ya estamos ordenando por ese campo, invertimos la dirección
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -124,7 +131,7 @@ export default function InformationEmpresas() {
       ...prevStates,
       [id]: !prevStates[id],
     }));
-    await updateStatusCompany(id, {isActive: newValue})
+    await updateStatusCompany(id, { isActive: newValue });
     if (accounts[0].localAccountId) {
       dispatch(fetchActiveCompany({ idUser: accounts[0].localAccountId }));
     }
@@ -134,34 +141,11 @@ export default function InformationEmpresas() {
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState(null);
 
-  const [data, setData] = useState({
-    nombre: "",
-    pais: "",
-    sedes: "",
-    tamaño: "",
-    sector: "",
-    img: null,
-    activo: false,
-    colorPrimario: "",
-    colorSecundario: "",
-    colorTerciario: "",
-    HeaderColorTextos: "",
-    HeaderColorIcons: "",
-    navColorIcon: "",
-    navColorFondoIcon: "",
-    btnPrimarioColor: "",
-    btnPrimarioColorTexto: "",
-    btnPrimarioColor: "",
-    btnPrimarioColorTexto: "",
-    btnSecundarioColor: "",
-    btnSecundarioColorTexto: "",
-  });
-
   const handleCreate = async () => {
     setStep(1);
     // Cerrar el modal y resetear estado
     setOpenModal(false);
-    await createCompany(accounts[0].localAccountId ,data);
+    await createCompany(accounts[0].localAccountId, data);
     setData({
       nombre: "",
       pais: "",
@@ -188,7 +172,7 @@ export default function InformationEmpresas() {
   };
 
   // editar categorias
-  const handleEdit =(empresa) => {
+  const handleEdit = (empresa) => {
     setStep(1);
     setEditing(empresa);
     setData({
@@ -211,7 +195,7 @@ export default function InformationEmpresas() {
       btnPrimarioColor: empresa.btnPrimarioColor || "",
       btnPrimarioColorTexto: empresa.btnPrimarioColorTexto || "",
       btnSecundarioColor: empresa.btnSecundarioColor || "",
-      btnSecundarioColorTexto: empresa.btnSecundarioColorTexto || ""
+      btnSecundarioColorTexto: empresa.btnSecundarioColorTexto || "",
     });
     setOpenModal(true);
   };
@@ -267,6 +251,7 @@ export default function InformationEmpresas() {
     setStep(1);
     // Realiza la lógica para actualizar el mapa
     setOpenModal(false);
+    setErrors({});
     setEditing(null);
     setData({
       nombre: "",
@@ -293,44 +278,11 @@ export default function InformationEmpresas() {
   const fetchCompanies = async () => {
     try {
       const data = await AllCompanies();
-      console.log(data)
       setCompanies(data);
     } catch (error) {
       console.error("Error al obtener las compañías:", error);
     }
   };
-
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const data = await AllCountries();
-        setCountries(data);
-      } catch (error) {
-        console.error("Error al obtener las compañías:", error);
-      }
-    };
-    const fetchSector = async () => {
-      try {
-        const data = await AllSectors();
-        setSectors(data);
-      } catch (error) {
-        console.error("Error al obtener las compañías:", error);
-      }
-    };
-
-    const fetchSizeCompany = async () => {
-      try {
-        const data = await fetchAllSizeCompanies();
-        setSizeCompanies(data);
-      } catch (error) {
-        console.error("Error al obtener las compañías:", error);
-      }
-    };
-    fetchCompanies();
-    fetchCountries();
-    fetchSector();
-    fetchSizeCompany();
-  }, []);
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
@@ -352,54 +304,6 @@ export default function InformationEmpresas() {
         <section className="my-6 bg-white p-8 rounded-[20px]">
           <div className="flex justify-between items-center px-4">
             <h2>Listado de empresas</h2>
-            <div className="relative inline-block text-left">
-              <button
-                className="flex gap-2 border-[#777777] border px-5 p-2 rounded-lg"
-                onClick={() => setShowSortMenu(!showSortMenu)}
-              >
-                <span className="font-[400]">Ordenar</span>
-                <img src={listIcon} alt="Ordenar empresas" />
-              </button>
-
-              {showSortMenu && (
-            <div className="absolute right-0 mt-2 w-60 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-              <ul className="text-sm text-gray-700">
-                {[
-                  { label: "Nombre de empresa", field: "businessName" },
-                  { label: "País", field: "country" },
-                  { label: "Tamaño", field: "sizeCompany" },
-                  { label: "Sector", field: "sector" }
-                ].map((item) => (
-                  <li key={item.field} className="border-b border-gray-100">
-                    <div className="px-4 pt-2 text-gray-800 font-medium">{item.label}</div>
-                    <div className="flex">
-                      <button
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100"
-                        onClick={() => {
-                          setSortField(item.field);
-                          setSortDirection("asc");
-                          setShowSortMenu(false);
-                        }}
-                      >
-                        Ascendente ↑
-                      </button>
-                      <button
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100"
-                        onClick={() => {
-                          setSortField(item.field);
-                          setSortDirection("desc");
-                          setShowSortMenu(false);
-                        }}
-                      >
-                        Descendente ↓
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            )}
-            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full bg-white">
@@ -514,39 +418,11 @@ export default function InformationEmpresas() {
           </div>
 
           {/* Paginador */}
-          <div className="flex justify-center mt-4">
-            <button
-              className={`px-3 py-1 mx-1 border ${
-                currentPage === 1 ? "cursor-not-allowed" : ""
-              }`}
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <IconChevronLeft />
-            </button>
-            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-              (pageNumber) => (
-                <button
-                  key={pageNumber}
-                  className={`px-3 py-1 mx-1 border ${
-                    currentPage === pageNumber ? "bg-gray-200" : ""
-                  }`}
-                  onClick={() => handlePageChange(pageNumber)}
-                >
-                  {pageNumber}
-                </button>
-              )
-            )}
-            <button
-              className={`px-3 py-1 mx-1 border ${
-                currentPage === totalPages ? "cursor-not-allowed" : ""
-              }`}
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}handleEdit
-            >
-              <IconChevronRight />
-            </button>
-          </div>
+          <PaginatorTable
+            currentPage={currentPage}
+            totalPages={totalPages}
+            handlePageChange={setCurrentPage}
+          />
         </section>
       </section>
 
@@ -574,119 +450,15 @@ export default function InformationEmpresas() {
             {/* Control de pasos */}
             {step === 1 && (
               <div className="grid grid-cols-2 gap-x-4">
-                <div className="col-span-1">
-                  <label htmlFor="nombre" className="text-[14px]">
-                    Nombre de empresa
-                  </label>
-                  <input
-                    type="text"
-                    name="nombre"
-                    value={data.nombre}
-                    onChange={(e) =>
-                      setData((prev) => ({ ...prev, nombre: e.target.value }))
-                    }
-                    placeholder="Ingresa el nombre de la empresa"
-                    className="w-full p-2 border rounded mb-4"
-                  />
-                </div>
-
-                <div className="col-span-1">
-                  <label htmlFor="pais" className="text-[14px]">
-                    País
-                  </label>
-                  <select
-                    name="pais"
-                    value={data.pais}
-                    onChange={(e) =>
-                      setData((prev) => ({ ...prev, pais: e.target.value }))
-                    }
-                    className="w-full p-2 border rounded mb-4"
-                  >
-                    <option value="">Seleccione un país</option>
-                    {countries.map((pais) => (
-                      <option key={pais.id} value={pais.id}>
-                        {pais.value}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="col-span-1">
-                  <label htmlFor="sedes" className="text-[14px]">
-                    Sedes
-                  </label>
-                  <input
-                    type="text"
-                    name="sedes"
-                    value={data.sedes}
-                    onChange={(e) =>
-                      setData((prev) => ({ ...prev, sedes: e.target.value }))
-                    }
-                    placeholder="Ingresa la sede"
-                    className="w-full p-2 border rounded mb-4"
-                  />
-                </div>
-
-                <div className="col-span-1">
-                  <label htmlFor="tamaño" className="text-[14px]">
-                    Tamaño de la empresa
-                  </label>
-                  <select
-                    type="text"
-                    name="tamaño"
-                    value={data.tamaño}
-                    onChange={(e) =>
-                      setData((prev) => ({ ...prev, tamaño: e.target.value }))
-                    }
-                    placeholder="Tamaño"
-                    className="w-full p-2 border rounded mb-4"
-                  >
-                    <option value="">Seleccione un tamaño de empresa</option>
-                    {sizeCompanies.map((sizeCompany) => (
-                      <option key={sizeCompany.id} value={sizeCompany.id}>
-                        {sizeCompany.quantityEmployess}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="col-span-2">
-                  <label htmlFor="sector" className="text-[14px]">
-                    Sector
-                  </label>
-                  <select
-                    type="text"
-                    name="sector"
-                    value={data.sector}
-                    onChange={(e) =>
-                      setData((prev) => ({ ...prev, sector: e.target.value }))
-                    }
-                    placeholder="Sector"
-                    className="w-full p-2 border rounded mb-4"
-                  >
-                    <option value="">Seleccione un sector</option>
-                    {sectors.map((sector) => (
-                      <option key={sector.id} value={sector.id}>
-                        {sector.sectorName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="col-span-2">
-                  <label htmlFor="img" className="text-[14px]">
-                    Imagen
-                  </label>
-                  <input
-                    type="file"
-                    name="img"
-                    onChange={(e) =>
-                      setData((prev) => ({ ...prev, img: e.target.files[0] }))
-                    }
-                    className="w-full p-2 border rounded mb-4"
-                  />
-                </div>
-
+                <FormCompany
+                  data={data}
+                  setData={setData}
+                  countries={countries}
+                  sectors={sectors}
+                  sizeCompanies={sizeCompanies}
+                  errors={errors}
+                  setErrors={setErrors}
+                />
                 {/* Navegación entre pasos */}
                 <div className="col-span-2 flex justify-end gap-4 mt-4">
                   <button
@@ -696,7 +468,7 @@ export default function InformationEmpresas() {
                     Cancelar
                   </button>
                   <button
-                    onClick={() => setStep(2)}
+                    onClick={() => handleNextStep()}
                     className="btn btn-principal px-4 py-2"
                   >
                     Siguiente
@@ -1104,28 +876,10 @@ export default function InformationEmpresas() {
         </div>
       )}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-[90%] max-w-md">
-            <h2 className="text-lg font-semibold mb-4">¿Estas seguro de eliminar la compañía?</h2>
-            <p className="text-gray-700 mb-6">
-              Esta acción no se puede deshacer.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
-                onClick={() => setShowDeleteModal(false)}
-              >
-                Cancelar
-              </button>
-              <button
-                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
-                onClick={handleConfirmDelete}
-              >
-                Sí, eliminar
-              </button>
-            </div>
-          </div>
-        </div>
+        <DeleteModal
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={handleConfirmDelete}
+        />
       )}
     </>
   );
