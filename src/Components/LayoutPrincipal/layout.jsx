@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useSelector, useDispatch } from 'react-redux';
 import arrowDown from "/assets/svg/arrow-down.svg";
 import "./layout.css";
 import Nav from "../nav-lateral/nav";
@@ -42,9 +43,12 @@ import ManageUsers from "../settings/Administrar-usuarios/administrar-usuarios";
 import ManageRol from "../settings/Administrar-roles/administrar-roles";
 import Login from "../../login/login";
 import SearchModal from "../searchModal/search";
-
+import { selectActiveCompanies, fetchActiveCompany } from "../../features/companies/companiesSlice";
 export default function LayoutPrincipal() {
-  const [selectedOption, setSelectedOption] = useState("People Intelligence");
+
+  const dispatch = useDispatch();
+  const activeCompanies = useSelector(selectActiveCompanies);
+  const [selectedOption, setSelectedOption] = useState("");
   const [selectedValue, setSelectedValue] = useState("Compañia");
   const [selectedColor, setSelectedColor] = useState(
     "linear-gradient(90deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.35) 100%)"
@@ -215,18 +219,20 @@ export default function LayoutPrincipal() {
   ];
 
   useEffect(() => {
-    const initialOption = options.find(
-      (option) => option.text === selectedOption
+    console.log(activeCompanies)
+    const initialOption = activeCompanies.find(
+      (option) => option.businessName === selectedOption
     );
+    console.log(initialOption)
     if (initialOption) {
-      setSelectedColor(initialOption.color_principal);
+      setSelectedColor(initialOption.colorPrincipal);
       setSelectedImg(initialOption.logo);
-      setSelectedColorSecundario(initialOption.color_secundario);
-      // setSelectedColorText(initialOption.color_texto);
-      setSelectedIcon(initialOption.icon);
+      setSelectedColorSecundario(initialOption.colorSecundario);
+      //setSelectedColorText("black");
+      setSelectedIcon(initialOption.logo);
       setSelectedColorTerciario(initialOption.colorTerciario);
-      setSelectedHeaderColorTextos(initialOption.HeaderColorTextos);
-      setSelectedHeaderColorIcons(initialOption.HeaderColorIcons);
+      setSelectedHeaderColorTextos(initialOption.headerColorTextos);
+      setSelectedHeaderColorIcons(initialOption.headerColorIcons);
       setSelectedNavColorIcon(initialOption.navColorIcon);
       setSelectedNavColorFondoIcon(initialOption.navColorFondoIcon);
       setSelectedBtnPrimarioColor(initialOption.btnPrimarioColor);
@@ -234,19 +240,19 @@ export default function LayoutPrincipal() {
       setSelectedBtnSecundarioColor(initialOption.btnSecundarioColor);
       setSelectedBtnSecundarioColorTexto(initialOption.btnSecundarioColorTexto);
     }
-  }, [selectedOption]);
+  }, [selectedOption, activeCompanies]);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
   const handleOptionClick = (option) => {
-    setSelectedOption(option.text);
-    setSelectedValue(option.value);
-    setSelectedColor(option.color_principal);
-    setSelectedColorSecundario(option.color_secundario);
+    setSelectedOption(option.businessName);
+    setSelectedValue("Compañia");
+    setSelectedColor(option.colorPrincipal);
+    setSelectedColorSecundario(option.colorSecundario);
     setSelectedImg(option.logo);
-    setSelectedIcon(option.icon);
+    setSelectedIcon(option.logo);
     setSelectedColorTerciario(option.colorTerciario);
     setSelectedHeaderColorTextos(option.HeaderColorTextos);
     setSelectedHeaderColorIcons(option.HeaderColorIcons);
@@ -258,7 +264,7 @@ export default function LayoutPrincipal() {
     setSelectedBtnSecundarioColorTexto(option.btnSecundarioColorTexto);
 
     // Guardar la opción seleccionada en localStorage
-    localStorage.setItem("selectedOption", option.text);
+    localStorage.setItem("selectedOption", option.businessName);
     setIsOpen(false);
   };
 
@@ -311,16 +317,6 @@ export default function LayoutPrincipal() {
   };
 
   const [tituloPagina, setTituloPagina] = useState(getTituloPagina(ruta));
-
-  // recuperar sesion
-  useEffect(() => {
-    // Recuperar la opción seleccionada al cargar la página
-    const storedOption = localStorage.getItem("selectedOption");
-    if (storedOption) {
-      setSelectedOption(storedOption);
-    }
-  }, []);
-
   // log out
   const navigate = useNavigate();
 
@@ -373,6 +369,30 @@ export default function LayoutPrincipal() {
     });
   };
 
+    // ✅ Establecer la opción seleccionada cuando activeCompanies cambie
+    useEffect(() => {
+      if (activeCompanies.length === 0) return;
+    
+      const storedOption = localStorage.getItem("selectedOption");
+      // Buscar si la opción guardada aún existe
+      const storedCompany = activeCompanies.find(c => c.businessName === storedOption);
+    
+      if (storedCompany) {
+        setSelectedOption(storedCompany.businessName);
+      } else {
+        // Si no existe, usar la primera y actualizar el localStorage
+        setSelectedOption(activeCompanies[0].businessName);
+        localStorage.setItem("selectedOption", activeCompanies[0].businessName);
+      }
+    }, [activeCompanies]);
+
+  //Estado global
+  useEffect(() => {
+    if (accounts[0].localAccountId) {
+      dispatch(fetchActiveCompany({ idUser: accounts[0].localAccountId }));
+    }
+  }, [dispatch]);
+
   return (
     <section>
       <section
@@ -402,7 +422,7 @@ export default function LayoutPrincipal() {
             >
               <img
                 className="h-[50px] transition-all duration-300  rounded-b-xl object-contain"
-                src={selectedImg}
+                src={selectedImg || IconoPeople}
                 alt="Logo"
               />{" "}
             </div>
@@ -440,21 +460,21 @@ export default function LayoutPrincipal() {
                   isOpen ? "open" : "hidden"
                 }`}
               >
-                {options.map((option, index) => (
+                {activeCompanies && activeCompanies.map((option, index) => (
                   <li
                     key={index}
                     onClick={() => handleOptionClick(option)}
                     className={`flex items-center flex-row p-1 rounded transition-all duration-300 ${
-                      selectedOption === option.text ? "selected p-1" : ""
+                      selectedOption === option.businessName ? "selected p-1" : ""
                     }`}
                   >
                     <img
                       className="w-[40px] h-[40px] rounded-full p-2 bg-[#F1F2F6]"
-                      src={option.icon || "/assets/img/people-icon.jpg"}
+                      src={option.logo || "/assets/img/people-icon.jpg"}
                       alt=""
                     />
                     <div className="w-[300px] ps-3">
-                      <p>{option.text}</p>
+                      <p>{option.businessName}</p>
                     </div>
                   </li>
                 ))}

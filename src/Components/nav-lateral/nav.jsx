@@ -81,7 +81,7 @@ export default function Nav({ colorOptions, titulo }) {
         </span>
         <span className="nav-text">Dashboard</span>
       </Link>
-      {userRoles.some((item) => item.trim() === "Journey") && (
+       {/* Se comentan estas secciones que aún no son ncesarioas
         <Link
           to="/employeejourney"
           className={`nav-item ${
@@ -117,7 +117,7 @@ export default function Nav({ colorOptions, titulo }) {
           </span>
           <span className="nav-text">Employee Journey</span>
         </Link>
-      )}
+     
       <Link
         to="/live-conversations"
         className={`nav-item ${
@@ -137,10 +137,10 @@ export default function Nav({ colorOptions, titulo }) {
         </span>
         <span className="nav-text">Dynamic Live Conversations</span>
       </Link>
-      {userRoles.some((item) => item.trim() === "PowerBiDashboard") && (
+      */}
         <Link
           to="/advanced-analytics"
-          className={`nav-item cursor-default ${
+          className={`nav-item ${
             activeLink == "Advanced Analytics & Dashboards" ? "active" : ""
           }`}
           onClick={() => handleLinkClick("Advanced Analytics & Dashboards")} // Pasas el título 'Advanced Analytics & Dashboards'
@@ -159,7 +159,6 @@ export default function Nav({ colorOptions, titulo }) {
           </span>
           <span className="nav-text">Advanced Analytics & Dashboards</span>
         </Link>
-      )}
       <div
         className={`relative group flex-col w-full nav-item cursor-default ${
           ["Empresas", "Empleados", "Departamentos", "Otros campos"].includes(
@@ -174,18 +173,18 @@ export default function Nav({ colorOptions, titulo }) {
             <IconUserFilled
               {...([
                 "Empresas",
-                "Empleados",
-                "Departamentos",
-                "Otros campos",
+                //"Empleados",
+                //"Departamentos",
+                //"Otros campos",
               ].includes(activeLink)
                 ? {}
                 : { color: "inherit" })}
               className={`${
                 [
                   "Empresas",
-                  "Empleados",
-                  "Departamentos",
-                  "Otros campos",
+                  //"Empleados",
+                  //"Departamentos",
+                  //"Otros campos",
                 ].includes(activeLink)
                   ? "iconActive"
                   : ""
@@ -210,6 +209,7 @@ export default function Nav({ colorOptions, titulo }) {
               Empresas
             </Link>
           </li>
+          {/*
           <li className="my-3">
             <Link
               className={`px-4 py-2 hover:bg-gray-400 w-full rounded ${
@@ -242,10 +242,10 @@ export default function Nav({ colorOptions, titulo }) {
             >
               Otros campos
             </Link>
-          </li>
+          </li>*/}
         </ul>
       </div>
-
+        {/* 
       <Link
         to="/network-analysis"
         className={`nav-item ${
@@ -269,7 +269,7 @@ export default function Nav({ colorOptions, titulo }) {
           ></IconInfoHexagonFilled>
         </span>
         <span className="nav-text">Organizational Network Analysis</span>
-      </Link>
+      </Link>*/}
     </nav>
   );
 }

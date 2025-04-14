@@ -2,7 +2,7 @@ import listIcon from "/assets/svg/list.svg";
 import EncuestaImg from "/assets/svg/encuesta.svg";
 import './Listado-encuestas.css';
 import { Link } from "react-router-dom";
-
+import '../../App.css'
 export default function ListadoEncuestas() {
   const encuestas = [
     {
