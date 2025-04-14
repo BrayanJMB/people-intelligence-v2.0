@@ -1,10 +1,8 @@
 import {
-  IconTrash,
   IconPlus,
-  IconPencil,
   IconArrowLeft,
 } from "@tabler/icons-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect,useCallback, useMemo } from "react";
 import {
   createCompany,
   deleteCompany,
@@ -26,7 +24,8 @@ import { emptyCompanyForm } from "./initialValues";
 import { FormCompanyColor } from "./components/FormCompanyColor";
 import { StepNavigationButtons } from "./components/shared/StepNavigationButtons";
 import { useFilteredItems } from "./hooks/useFilteredItems";
-import CircularProgress from '@mui/material/CircularProgress';
+import { TableWithSortAndSearch } from "./components/shared/TableWithSortAndSearch";
+import { informationCompanies } from "./schemas/tableCompany.schema";
 export default function InformationEmpresas() {
   const {
     data,
@@ -54,7 +53,7 @@ export default function InformationEmpresas() {
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { accounts } = useMsal();
-  const { filteredItems, hasResults, emptyMessage } = useFilteredItems(
+  const { filteredItems } = useFilteredItems(
     companies,
     "businessName",
     searchTerm,
@@ -80,22 +79,22 @@ export default function InformationEmpresas() {
   };
   const [switchStates, setSwitchStates] = useState({});
   // Estado de los switches
-  const handleSort = (field) => {
-    if (sortField === field) {
-      // Si ya estamos ordenando por ese campo, invertimos la dirección
-      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      // Si cambiamos de campo, reiniciamos a ascendente
-      setSortField(field);
-      setSortDirection("asc");
-    }
-  };
-  const sortedCurrentItems = sortItems(
-    currentItems,
-    sortField,
-    sortDirection,
-    getValue
-  );
+
+  const handleSort = useCallback((field) => {
+    setSortField((prev) => {
+      if (prev === field) {
+        setSortDirection((dir) => (dir === "asc" ? "desc" : "asc"));
+        return prev;
+      } else {
+        setSortDirection("asc");
+        return field;
+      }
+    });
+  }, []);
+
+  const sortedCurrentItems = useMemo(() => {
+    return sortItems(currentItems, sortField, sortDirection, getValue);
+  }, [currentItems, sortField, sortDirection]);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -238,128 +237,18 @@ export default function InformationEmpresas() {
             />
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full bg-white">
-              <thead>
-                <tr>
-                  <th
-                    onClick={() => handleSort("businessName")}
-                    className="cursor-pointer"
-                  >
-                    Nombre de empresa{" "}
-                    {sortField === "businessName" &&
-                      (sortDirection === "asc" ? "↑" : "↓")}
-                  </th>
-                  <th
-                    onClick={() => handleSort("country")}
-                    className="cursor-pointer"
-                  >
-                    País{" "}
-                    {sortField === "country" &&
-                      (sortDirection === "asc" ? "↑" : "↓")}
-                  </th>
-                  <th
-                    onClick={() => handleSort("sedes")}
-                    className="cursor-pointer"
-                  >
-                    Sedes{" "}
-                    {sortField === "sedes" &&
-                      (sortDirection === "asc" ? "↑" : "↓")}
-                  </th>
-                  <th
-                    onClick={() => handleSort("sizeCompany")}
-                    className="cursor-pointer"
-                  >
-                    Tamaño{" "}
-                    {sortField === "sizeCompany" &&
-                      (sortDirection === "asc" ? "↑" : "↓")}
-                  </th>
-                  <th
-                    onClick={() => handleSort("sector")}
-                    className="cursor-pointer"
-                  >
-                    Sector{" "}
-                    {sortField === "sector" &&
-                      (sortDirection === "asc" ? "↑" : "↓")}
-                  </th>
-                  <th className="py-5 px-4 text-left text-[#606060] font-normal">
-                    Opciones
-                  </th>
-                  <th className="py-5 px-4 text-left text-[#606060] font-normal">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={7} className="text-center py-6">
-                      <CircularProgress color="primary" />
-                    </td>
-                  </tr>
-                ) : hasResults ? (
-                  sortedCurrentItems.map((empresa) => (
-                    <tr key={empresa.id}>
-                      <td className="py-5 px-4">
-                        <p className="flex items-center gap-4">
-                          <img
-                            className="w-[30px] h-[30px] rounded-md"
-                            src={empresa.logo || IconoPeople}
-                            alt={`Imagen de ${empresa.businessName}`}
-                          />
-                          {empresa.businessName}
-                        </p>
-                      </td>
-                      <td className="py-5 px-4 flex gap-2">
-                        {empresa.country}
-                      </td>
-                      <td className="py-5 px-4">{empresa.address}</td>
-                      <td className="py-5 px-4">{empresa.sizeCompany}</td>
-                      <td className="py-5 px-4">{empresa.sector}</td>
-                      <td className="py-5 px-4">
-                        <span className="flex gap-1">
-                          <IconPencil
-                            className="cursor-pointer"
-                            onClick={() => handleEdit(empresa)}
-                          />
-                          <IconTrash
-                            className="cursor-pointer"
-                            onClick={() => confirmDelete(empresa.id)}
-                          />
-                        </span>
-                      </td>
-                      <td className="py-5 px-4">
-                        <label className="inline-flex relative items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only"
-                            checked={switchStates[empresa.id]}
-                            onChange={() => handleSwitchChange(empresa.id)}
-                          />
-                          <div
-                            className={`w-11 h-6 rounded-full transition duration-200 ${
-                              switchStates[empresa.id]
-                                ? "!bg-blue-600"
-                                : "bg-gray-200"
-                            }`}
-                          ></div>
-                          <div
-                            className={`dot absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 transform ${
-                              switchStates[empresa.id] ? "translate-x-5" : ""
-                            }`}
-                          ></div>
-                        </label>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={7} className="text-center py-6 text-gray-500">
-                      {emptyMessage}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            <TableWithSortAndSearch
+              columns={informationCompanies}
+              data={sortedCurrentItems}
+              loading={loading}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              onEdit={handleEdit}
+              onDelete={confirmDelete}
+              onToggle={handleSwitchChange}
+              switchStates={switchStates}
+            />
           </div>
 
           {/* Paginador */}
