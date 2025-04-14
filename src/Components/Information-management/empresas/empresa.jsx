@@ -5,7 +5,6 @@ import {
   IconArrowLeft,
 } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
-import { AllCompanies } from "./services/getAllCompanies.service";
 import {
   createCompany,
   deleteCompany,
@@ -25,6 +24,7 @@ import { useInformationLogic } from "./hooks/useInformation";
 import { getValue, sortItems } from "./utils/utils";
 import { emptyCompanyForm } from "./initialValues";
 import { FormCompanyColor } from "./components/FormCompanyColor";
+import { StepNavigationButtons } from "./components/shared/StepNavigationButtons";
 
 export default function InformationEmpresas() {
   const {
@@ -40,12 +40,12 @@ export default function InformationEmpresas() {
     currentPage,
     setCurrentPage,
     itemsPerPage,
+    fetchCompanies,
   } = useInformationLogic();
   const IconoPeople = "../../assets/img/people-icon.jpg";
   const dispatch = useDispatch();
   const currentCompany = useSelector(selectCurrentCompany);
-  const [currentStep, setCurrentStep] = useState(2);
-  const [step, setStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(1);
   const [sortField, setSortField] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -61,7 +61,7 @@ export default function InformationEmpresas() {
 
   // Función para manejar los pasos del modal
   const handleNextStep = () => {
-    if (validateFields()) return;
+    if (!validateFields()) return;
     setCurrentStep((prevStep) => prevStep + 1);
   };
 
@@ -109,17 +109,18 @@ export default function InformationEmpresas() {
   const [editing, setEditing] = useState(null);
 
   const handleCreate = async () => {
-    setStep(1);
+    setCurrentStep(1);
     // Cerrar el modal y resetear estado
     setOpenModal(false);
     await createCompany(accounts[0].localAccountId, data);
     setData(emptyCompanyForm);
+    set;
     await fetchCompanies(); // 👈 Después trae los nuevos datos
   };
 
   // editar categorias
   const handleEdit = (empresa) => {
-    setStep(1);
+    setCurrentStep(1);
     setEditing(empresa);
     setData({
       idCompany: empresa.id,
@@ -155,14 +156,14 @@ export default function InformationEmpresas() {
     await deleteCompany(selectedCompanyId);
     setShowDeleteModal(false);
     setSelectedCompanyId(null);
-    fetchCompanies();
+    await fetchCompanies();
     if (accounts[0].localAccountId) {
       dispatch(fetchActiveCompany({ idUser: accounts[0].localAccountId }));
     }
   };
 
   const handleUpdate = async () => {
-    setStep(1);
+    setCurrentStep(1);
     // Realiza la lógica para actualizar el mapa
     setOpenModal(false);
     setEditing(null);
@@ -174,7 +175,7 @@ export default function InformationEmpresas() {
     }
   };
   const handleCancel = () => {
-    setStep(1);
+    setCurrentStep(1);
     // Realiza la lógica para actualizar el mapa
     setOpenModal(false);
     setErrors({});
@@ -343,9 +344,9 @@ export default function InformationEmpresas() {
           <div className="bg-white p-8 rounded-lg shadow-lg w-[800px]">
             <div className="flex items-center mb-4 gap-4">
               <button
-                onClick={() => setStep(1)}
+                onClick={() => handlePrevStep()}
                 className={`flex items-center gap-3 text-gray-700 hover:text-gray-500 w-max ${
-                  step === 1 && "hidden"
+                  currentStep === 1 && "hidden"
                 }`}
               >
                 <IconArrowLeft
@@ -360,7 +361,7 @@ export default function InformationEmpresas() {
             </div>
 
             {/* Control de pasos */}
-            {step === 1 && (
+            {currentStep === 1 && (
               <div className="grid grid-cols-2 gap-x-4">
                 <FormCompany
                   data={data}
@@ -371,44 +372,22 @@ export default function InformationEmpresas() {
                   errors={errors}
                   setErrors={setErrors}
                 />
-                {/* Navegación entre pasos */}
-                <div className="col-span-2 flex justify-end gap-4 mt-4">
-                  <button
-                    onClick={handleCancel}
-                    className="btn btn-secundario px-4 py-2"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={() => handleNextStep()}
-                    className="btn btn-principal px-4 py-2"
-                  >
-                    Siguiente
-                  </button>
-                </div>
               </div>
             )}
 
-            {step === 2 && (
+            {currentStep === 2 && (
               <>
-                <FormCompanyColor data={data} setData={setData}/>
-                {/* Navegación entre pasos */}
-                <div className="col-span-4 flex justify-end gap-4 mt-8">
-                  <button
-                    onClick={handleCancel}
-                    className="btn btn-secundario px-4 py-2"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={editing ? handleUpdate : handleCreate}
-                    className="btn btn-principal px-4 py-2"
-                  >
-                    {editing ? "Actualizar" : "Crear"}
-                  </button>
-                </div>
+                <FormCompanyColor data={data} setData={setData} />
               </>
             )}
+            <StepNavigationButtons
+              onCancel={handleCancel}
+              onNext={handleNextStep}
+              onSubmit={editing ? handleUpdate : handleCreate}
+              editing={editing}
+              currentStep={currentStep}
+              totalSteps={2} // o 3, dependiendo de tu flujo
+            />
           </div>
         </div>
       )}
