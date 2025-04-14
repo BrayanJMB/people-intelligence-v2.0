@@ -22,6 +22,8 @@ import { FormCompany } from "./components/FormCompany";
 import { DeleteModal } from "./components/DeleteModal";
 import { PaginatorTable } from "../../Paginator/PaginatorTable";
 import { useInformationLogic } from "./hooks/useInformation";
+import { getValue, sortItems } from "./utils/utils";
+import { emptyCompanyForm } from "./initialValues";
 export default function InformationEmpresas() {
   const {
     data,
@@ -67,20 +69,6 @@ export default function InformationEmpresas() {
   };
   const [switchStates, setSwitchStates] = useState({});
   // Estado de los switches
-  useEffect(() => {
-    if (
-      currentItems &&
-      currentItems.length > 0 &&
-      Object.keys(switchStates).length === 0
-    ) {
-      const initialStates = currentItems.reduce(
-        (acc, empresa) => ({ ...acc, [empresa.id]: empresa.isActive }),
-        {}
-      );
-      setSwitchStates(initialStates);
-    }
-  }, [currentItems]);
-
   const handleSort = (field) => {
     if (sortField === field) {
       // Si ya estamos ordenando por ese campo, invertimos la dirección
@@ -91,34 +79,12 @@ export default function InformationEmpresas() {
       setSortDirection("asc");
     }
   };
-
-  const getValue = (empresa, field) => {
-    switch (field) {
-      case "businessName":
-        return empresa.businessName?.toLowerCase() || "";
-      case "country":
-        return empresa.country?.toLowerCase() || ""; // si es string
-      case "sedes":
-        return empresa.address?.toLowerCase() || "";
-      case "sizeCompany":
-        return empresa.sizeCompany?.toLowerCase() || "";
-      case "sector":
-        return empresa.sector?.toLowerCase() || "";
-      default:
-        return "";
-    }
-  };
-
-  const sortedCurrentItems = [...currentItems].sort((a, b) => {
-    if (!sortField) return 0;
-
-    const aVal = getValue(a, sortField);
-    const bVal = getValue(b, sortField);
-
-    if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
-    if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
-    return 0;
-  });
+  const sortedCurrentItems = sortItems(
+    currentItems,
+    sortField,
+    sortDirection,
+    getValue
+  );
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -146,28 +112,7 @@ export default function InformationEmpresas() {
     // Cerrar el modal y resetear estado
     setOpenModal(false);
     await createCompany(accounts[0].localAccountId, data);
-    setData({
-      nombre: "",
-      pais: "",
-      sedes: "",
-      tamaño: "",
-      sector: "",
-      img: null,
-      activo: false,
-      colorPrimario: "",
-      colorsecundario: "",
-      colorTerciario: "",
-      HeaderColorTextos: "",
-      HeaderColorIcons: "",
-      navColorIcon: "",
-      navColorFondoIcon: "",
-      btnPrimarioColor: "",
-      btnPrimarioColorTexto: "",
-      btnPrimarioColor: "",
-      btnPrimarioColorTexto: "",
-      btnSecundarioColor: "",
-      btnSecundarioColorTexto: "",
-    });
+    setData(emptyCompanyForm);
     await fetchCompanies(); // 👈 Después trae los nuevos datos
   };
 
@@ -218,29 +163,9 @@ export default function InformationEmpresas() {
   const handleUpdate = async () => {
     setStep(1);
     // Realiza la lógica para actualizar el mapa
-
     setOpenModal(false);
     setEditing(null);
-    setData({
-      nombre: "",
-      pais: "",
-      sedes: "",
-      tamaño: "",
-      sector: "",
-      img: null,
-      activo: false,
-      colorPrimario: "",
-      colorsecundario: "",
-      colorTerciario: "",
-      HeaderColorTextos: "",
-      HeaderColorIcons: "",
-      navColorIcon: "",
-      navColorFondoIcon: "",
-      btnPrimarioColor: "",
-      btnPrimarioColorTexto: "",
-      btnSecundarioColor: "",
-      btnSecundarioColorTexto: "",
-    });
+    setData(emptyCompanyForm);
     await updateCompany(data);
     await fetchCompanies(); // 👈 Después trae los nuevos datos
     if (accounts[0].localAccountId) {
@@ -253,36 +178,22 @@ export default function InformationEmpresas() {
     setOpenModal(false);
     setErrors({});
     setEditing(null);
-    setData({
-      nombre: "",
-      pais: "",
-      sedes: "",
-      tamaño: "",
-      sector: "",
-      img: null,
-      activo: false,
-      colorPrimario: "",
-      colorsecundario: "",
-      colorTerciario: "",
-      HeaderColorTextos: "",
-      HeaderColorIcons: "",
-      navColorIcon: "",
-      navColorFondoIcon: "",
-      btnPrimarioColor: "",
-      btnPrimarioColorTexto: "",
-      btnSecundarioColor: "",
-      btnSecundarioColorTexto: "",
-    });
+    setData(emptyCompanyForm);
   };
 
-  const fetchCompanies = async () => {
-    try {
-      const data = await AllCompanies();
-      setCompanies(data);
-    } catch (error) {
-      console.error("Error al obtener las compañías:", error);
+  useEffect(() => {
+    if (
+      currentItems &&
+      currentItems.length > 0 &&
+      Object.keys(switchStates).length === 0
+    ) {
+      const initialStates = currentItems.reduce(
+        (acc, empresa) => ({ ...acc, [empresa.id]: empresa.isActive }),
+        {}
+      );
+      setSwitchStates(initialStates);
     }
-  };
+  }, [currentItems]);
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
