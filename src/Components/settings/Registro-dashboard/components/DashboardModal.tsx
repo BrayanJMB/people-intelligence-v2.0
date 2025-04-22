@@ -1,36 +1,19 @@
 import { StepNavigationButtons } from "../../../shared/StepNavigationButtons";
 import { ModalBase } from "../../../shared/ModalBase";
-
-interface DashboardModalProps {
-  isEditing: boolean;
-  data: {
-    reportId: string;
-    groupId: string;
-    powerByDescriptionDashboardId: number;
-    companyId: number;
-    activo: boolean;
-  };
-  reports:[];
-  companies:[];
-  onChange: (key: keyof DashboardModalProps["data"], value: string) => void;
-  onCancel: () => void;
-  onSubmit: () => void;
-  onChangeReport: () => void;
-  currentStep: number;
-}
+import { Report, Company } from "../types/dashboard.types";
+import { DashboardModalProps } from "../types/dashboard.types";
 
 export function DashboardModal({
   isEditing,
   data,
+  reports,
+  companies,
   onChange,
   onChangeReport,
   onCancel,
   onSubmit,
   currentStep,
-  reports,
-  companies,
 }: DashboardModalProps) {
-    console.log(reports)
   return (
     <ModalBase isEditing={isEditing}>
       <div className="grid grid-cols-2 gap-x-4">
@@ -72,15 +55,14 @@ export function DashboardModal({
             onChange={(e) => onChange("companyId", e.target.value)}
             className="w-full p-2 border rounded mb-4"
           >
-            <option value="" disabled selected>
+            <option value="" disabled>
               Seleccione una compañía
             </option>
-            {companies &&
-              companies.map((company, index) => (
-                <option key={index} value={company.id}>
-                  {company.businessName}
-                </option>
-              ))}
+            {companies.map((company, index) => (
+              <option key={index} value={company.id}>
+                {company.businessName}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -91,18 +73,17 @@ export function DashboardModal({
           <select
             name="powerByDescriptionDashboardId"
             value={data.powerByDescriptionDashboardId}
-            onChange={(e) => onChangeReport(e)}
+            onChange={onChangeReport}
             className="w-full p-2 border rounded mb-4"
           >
-            <option value="" disabled selected>
+            <option value="" disabled>
               Seleccione un reporte
             </option>
-            {reports &&
-              reports.map((report, index) => (
-                <option key={index} value={report.id}>
-                  {report.name}
-                </option>
-              ))}
+            {reports.map((report, index) => (
+              <option key={index} value={report.id}>
+                {report.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -112,14 +93,14 @@ export function DashboardModal({
           </label>
           <textarea
             name="powerByDescriptionDashboard"
-            value={data.powerByDescriptionDashboard}
+            value={data.powerByDescriptionDashboard ?? ""}
             onChange={(e) =>
               onChange("powerByDescriptionDashboard", e.target.value)
             }
             placeholder="Escribe aquí..."
             className="w-full p-2 border rounded mb-4 resize-none"
             rows={4}
-            disabled // ✅ Aquí lo deshabilitas
+            disabled
           />
         </div>
       </div>
