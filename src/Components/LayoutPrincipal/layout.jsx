@@ -38,11 +38,12 @@ import EditarPlantilla from "../PlantillasEncuestas/editarPlantillasForm/[editar
 import EditarConversation from "../Live-Conversations/editConversation/[editarId]";
 import RegistroDashboard from "../settings/Registro-dashboard/Registro-dashboard";
 import RegistroReporte from "../settings/Registrar-reporte/Registro-reporte";
-import Managecompany from "../settings/administrar-compañias/administrar-compañia";
+import Managecompany from "../settings/administrar-compañias/administrar-company";
 import ManageUsers from "../settings/Administrar-usuarios/administrar-usuarios";
 import ManageRol from "../settings/Administrar-roles/administrar-roles";
 import Login from "../../login/login";
 import SearchModal from "../searchModal/search";
+import AdvancedAnalytics from "../advanced-analytics/advanced-analytics";
 import { selectActiveCompanies, fetchActiveCompany } from "../../features/companies/companiesSlice";
 export default function LayoutPrincipal() {
 
@@ -656,7 +657,7 @@ export default function LayoutPrincipal() {
                   />
                 }
               />
-              <Route path="/advanced-analytics" element={<></>} />
+              <Route path="/advanced-analytics" element={<AdvancedAnalytics/>} />
               <Route
                 path="/registrar-dashboard"
                 element={<RegistroDashboard />}

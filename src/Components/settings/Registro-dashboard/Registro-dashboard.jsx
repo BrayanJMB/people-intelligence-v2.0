@@ -3,70 +3,29 @@ import ImgConversacion from "/assets/img/conversacion.jpg";
 
 import {
   IconTrash,
-  IconPlus,
-  IconChevronLeft,
-  IconChevronRight,
   IconPencil,
   IconEye,
 } from "@tabler/icons-react";
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
+import { SectionToolbar } from "../../shared/SectionToolbar";
+import { PaginatorTable } from "../../Paginator/PaginatorTable";
+import { DashboardModal } from "./components/DashboardModal";
+import { GetAllReports } from "../Registrar-reporte/services/reports.service";
+import { AllCompanies } from "../../Information-management/empresas/services/company.service";
+import { CreateDashboard, getAllDashboards } from "./components/services/dashboard.services";
 export default function RegistroDashboard() {
-  const dashboards = [
-    {
-      id: 1,
-      nombre: "Dashboard de capacitaciones para empresas",
-      grupo: "3d3d3",
-      nombreCompany: "davivienda",
-      imgCompany: "/assets/img/davivienda-icon.jpg",
-      nombreReporte: "Dashboard",
-      description: "Descripción de ejemplo",
-      img: ImgConversacion,
-      activo: false,
-    },
-    {
-      id: 2,
-      nombre: "Dashboard de capacitaciones para empresas",
-      grupo: "3d3d3",
-      nombreCompany: "davivienda",
-      imgCompany: "/assets/img/davivienda-icon.jpg",
-      nombreReporte: "Dashboard",
-      description: "Descripción de ejemplo",
-      img: ImgConversacion,
-      activo: false,
-    },
-    {
-      id: 3,
-      nombre: "Dashboard de capacitaciones para empresas",
-      grupo: "3d3d3",
-      nombreCompany: "davivienda",
-      imgCompany: "/assets/img/davivienda-icon.jpg",
-      nombreReporte: "Dashboard",
-      description: "Descripción de ejemplo",
-      img: ImgConversacion,
-      activo: false,
-    },
-  ];
 
-  const Empresas = [
-    {
-      nombreCompany: "davivienda",
-    },
-    {
-      nombreCompany: "bancolombia",
-    },
-    {
-      nombreCompany: "allianz",
-    },
-  ];
-
+  const [currentStep, setCurrentStep] = useState(1);
+  const [reports,setReports] = useState([]);
+  const [dashboards,setDashboards] = useState([]);
+  const [companies,setCompanies] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const itemsPerPage = 6; // Número de dashboards por página
   const [step, setStep] = useState(1);
   // Estado de los switches
   const [switchStates, setSwitchStates] = useState(
     dashboards.reduce(
-      (acc, dashboard) => ({ ...acc, [dashboard.id]: dashboard.activo }),
+      (acc, dashboard) => ({ ...acc, [dashboard.id]: dashboard.isActive }),
       {}
     )
   );
@@ -90,34 +49,29 @@ export default function RegistroDashboard() {
       [id]: !prevStates[id],
     }));
   };
+  console.log(switchStates)
 
   // modal dashboards
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState(null);
 
   const [data, setData] = useState({
-    nombre: "",
-    grupo: "",
-    nombreCompany: "",
-    nombreReporte: "",
-    description: "",
+    reportId: "",
+    groupId: "",
+    powerByDescriptionDashboardId:"",
+    companyId: "",
     activo: false,
   });
 
   const handleCreate = () => {
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    console.log("Crear:", data);
-
+    CreateDashboard(data)
     // Cerrar el modal y resetear estado
     setOpenModal(false);
     setData({
-      nombre: "",
-      grupo: "",
-      nombreCompany: "",
-      nombreReporte: "",
-      description: "",
+      reportId: "",
+      groupId: "",
+      powerByDescriptionDashboardId:"",
+      companyId: "",
       activo: false,
     });
   };
@@ -142,53 +96,88 @@ export default function RegistroDashboard() {
     console.log("Actualizando data:", data);
     setOpenModal(false);
     setEditing(null);
-    setData({
+    /*setData({
       nombre: "",
       grupo: "",
       nombreCompany: "",
       nombreReporte: "",
       description: "",
       activo: false,
-    });
+    });*/
   };
   const handleCancel = () => {
     // Realiza la lógica para actualizar el mapa
     setOpenModal(false);
     setEditing(null);
-    setData({
+    /*setData({
       nombre: "",
       grupo: "",
       nombreCompany: "",
       nombreReporte: "",
       description: "",
       activo: false,
-    });
+    });*/
   };
 
-  const handleDelete = (id) =>{
+  const handleDelete = (id) => {
     // funcion para eliminar por id
 
-    console.log('producto eliminado ' + id);
+    console.log("producto eliminado " + id);
+  };
+
+  const handleReportChange = (e) => {
+    const selectedId = e.target.value;
+    // Buscar el reporte por ID
+    const selectedReport = reports.find(report => report.id == selectedId);
+    // Actualizar las dos propiedades usando setData
+    setData(prev => ({
+      ...prev,
+      powerByDescriptionDashboardId: selectedId,
+      powerByDescriptionDashboard: selectedReport?.description || ""
+    }));
+  };
+  
+  const fetchAllDashboards = async () =>{
+    const data = await getAllDashboards();
+    setDashboards(data);
+  }
+  const fetchAllReports = async () =>{
+    const data = await GetAllReports()
+    setReports(data)
+  }
     
+  const fetchAllCompanies = async () =>{
+    const data = await AllCompanies()
+    setCompanies(data);
   }
 
+  useEffect(() => {
+    fetchAllDashboards();
+    fetchAllCompanies();
+    fetchAllReports();
+    console.log("1")
+    const initialStates = dashboards.reduce(
+      (acc, empresa) => ({ ...acc, [empresa.id]: empresa.isActive }),
+      {}
+    );
+    setSwitchStates(initialStates);
+  }, [])
+  
+  useEffect(() => {
+    const initialStates = dashboards.reduce(
+      (acc, empresa) => ({ ...acc, [empresa.id]: empresa.isActive }),
+      {}
+    );
+    setSwitchStates(initialStates);
+  }, [dashboards])
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
-        <section className="flex justify-between items-center bg-white p-8 px-11 rounded-[20px]">
-          <div>
-            <h2 className="font-bold text-[22px]">Dashboard</h2>
-          </div>
-          <button
-            onClick={() => {
-              setOpenModal(!openModal);
-            }}
-            className="btn btn-principal"
-          >
-            <IconPlus />
-            <span>Crear Dashboard</span>
-          </button>
-        </section>
+        <SectionToolbar
+          title="Dashboard"
+          buttonText="Crear Dashboard"
+          onAddClick={() => setOpenModal(!openModal)}
+        />
         <section className="my-6 bg-white p-8 rounded-[20px]">
           <div className="flex justify-between items-center px-4">
             <h2>Listado de dashboard</h2>
@@ -216,29 +205,24 @@ export default function RegistroDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {currentItems.map((dashboard) => (
+                {dashboards && dashboards.map((dashboard) => (
                   <tr key={dashboard.id}>
                     <td className="py-5 px-4">
                       <p className="flex items-center gap-4">
-                        <img
-                          className="w-[30px] h-[30px] rounded-md"
-                          src={dashboard.img}
-                          alt={`Imagen de ${dashboard.nombre}`}
-                        />
-                        {dashboard.nombre}
+                        {dashboard.reportName}
                       </p>
                     </td>
                     <td className="py-5 px-4 flex gap-2 items-center">
                       <div className="img-contain bg-[#ECEEF6] p-1 rounded">
                         <img
-                          src={dashboard.imgCompany}
+                          src={dashboard.companyLogo}
                           className=""
                           width={25}
                           height={25}
                           alt=""
                         />
                       </div>
-                      {dashboard.nombreCompany}
+                      {dashboard.companyName}
                     </td>
                     <td className="py-5 px-4">
                       <label className="inline-flex relative items-center cursor-pointer">
@@ -276,39 +260,11 @@ export default function RegistroDashboard() {
           </div>
 
           {/* Paginador */}
-          <div className="flex justify-center mt-4">
-            <button
-              className={`px-3 py-1 mx-1 border ${
-                currentPage === 1 ? "cursor-not-allowed" : ""
-              }`}
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <IconChevronLeft />
-            </button>
-            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-              (pageNumber) => (
-                <button
-                  key={pageNumber}
-                  className={`px-3 py-1 mx-1 border ${
-                    currentPage === pageNumber ? "bg-gray-200" : ""
-                  }`}
-                  onClick={() => handlePageChange(pageNumber)}
-                >
-                  {pageNumber}
-                </button>
-              )
-            )}
-            <button
-              className={`px-3 py-1 mx-1 border ${
-                currentPage === totalPages ? "cursor-not-allowed" : ""
-              }`}
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <IconChevronRight />
-            </button>
-          </div>
+          <PaginatorTable
+            currentPage={currentPage}
+            totalPages={totalPages}
+            handlePageChange={setCurrentPage}
+          />
         </section>
       </section>
 
@@ -322,117 +278,19 @@ export default function RegistroDashboard() {
             </div>
 
             {/* Control de pasos */}
-            <div className="grid grid-cols-2 gap-x-4">
-              <div className="col-span-1">
-                <label htmlFor="nombre" className="text-[14px]">
-                  Nombre de compañía
-                </label>
-                <input
-                  type="text"
-                  name="nombre"
-                  value={data.nombre}
-                  onChange={(e) =>
-                    setData((prev) => ({ ...prev, nombre: e.target.value }))
-                  }
-                  placeholder="Escribe aquí"
-                  className="w-full p-2 border rounded mb-4"
-                />
-              </div>
-
-              <div className="col-span-1">
-                <label htmlFor="grupo" className="text-[14px]">
-                  Grupo ID
-                </label>
-                <input
-                  type="text"
-                  name="grupo"
-                  value={data.grupo}
-                  onChange={(e) =>
-                    setData((prev) => ({ ...prev, grupo: e.target.value }))
-                  }
-                  placeholder="Escribe aquí"
-                  className="w-full p-2 border rounded mb-4"
-                />
-              </div>
-
-              <div className="col-span-1">
-                <label htmlFor="nombreCompany" className="text-[14px]">
-                  Nombre compañía
-                </label>
-                <select
-                  name="nombreCompany"
-                  value={data.nombreCompany}
-                  onChange={(e) =>
-                    setData((prev) => ({
-                      ...prev,
-                      nombreCompany: e.target.value,
-                    }))
-                  }
-                  className="w-full p-2 border rounded mb-4"
-                >
-                  <option value="" disabled>
-                    Seleccione una compañía
-                  </option>
-                  {Empresas.map((empresa, index) => (
-                    <option key={index} value={empresa.nombreCompany}>
-                      {empresa.nombreCompany}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="col-span-1">
-                <label htmlFor="nombreReporte" className="text-[14px]">
-                  Nombre de reporte
-                </label>
-                <input
-                  type="text"
-                  name="nombreReporte"
-                  value={data.nombreReporte}
-                  onChange={(e) =>
-                    setData((prev) => ({
-                      ...prev,
-                      nombreReporte: e.target.value,
-                    }))
-                  }
-                  placeholder="Escribe aquí"
-                  className="w-full p-2 border rounded mb-4"
-                />
-              </div>
-
-              <div className="col-span-2">
-                <label htmlFor="description" className="text-[14px]">
-                  Descripción
-                </label>
-                <textarea
-                  name="description"
-                  value={data.description}
-                  onChange={(e) =>
-                    setData((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  placeholder="Escribe aquí..."
-                  className="w-full p-2 border rounded mb-4 resize-none"
-                  rows="4"
-                />
-              </div>
-            </div>
-            <div className="col-span-4 flex justify-end gap-4 mt-8">
-              <button
-                onClick={handleCancel}
-                className="btn btn-secundario px-4 py-2"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={editing ? handleUpdate : handleCreate}
-                className="btn btn-principal px-4 py-2"
-              >
-                {editing ? "Actualizar" : "Crear"}
-              </button>
-            </div>
+            <DashboardModal
+              isEditing={!!editing}
+              data={data}
+              reports={reports} 
+              companies={companies}
+              onChange={(key, value) =>
+                setData((prev) => ({ ...prev, [key]: value }))
+              }
+              onChangeReport={(e) => handleReportChange(e)}
+              onCancel={handleCancel}
+              onSubmit={editing ? handleUpdate : handleCreate}
+              currentStep={currentStep}
+            />
           </div>
         </div>
       )}
