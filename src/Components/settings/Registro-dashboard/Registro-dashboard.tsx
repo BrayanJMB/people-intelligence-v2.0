@@ -1,4 +1,5 @@
 import listIcon from "/assets/svg/list.svg";
+import { useSelector } from 'react-redux';
 import { IconTrash, IconPencil, IconEye } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { SectionToolbar } from "../../shared/SectionToolbar";
@@ -10,11 +11,15 @@ import {
   CreateDashboard,
   getAllDashboards,
   UpdateDashboard,
-  ToggleDashboardStatus
+  ToggleDashboardStatus,
+  getAllDashboardsById
 } from "./services/dashboard.services";
 import { Dashboard, Report, Company } from "./types/dashboard.types";
 import { DashboardModalProps } from "./types/dashboard.types";
+import { selectCurrentCompany } from "../../../features/companies/companiesSlice";
+
 export default function RegistroDashboard() {
+  const currentCompany = useSelector(selectCurrentCompany);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [reports, setReports] = useState<Report[]>([]);
   const [dashboards, setDashboards] = useState<Dashboard[]>([]);
@@ -131,8 +136,12 @@ export default function RegistroDashboard() {
     setCompanies(data);
   };
 
+  const fetchDashboardById = async (companyId: string) =>{
+    const data = await getAllDashboardsById(companyId);
+    setDashboards(data);
+  }
+
   useEffect(() => {
-    fetchAllDashboards();
     fetchAllCompanies();
     fetchAllReports();
   }, []);
@@ -144,6 +153,12 @@ export default function RegistroDashboard() {
     );
     setSwitchStates(initialStates);
   }, [dashboards]);
+
+  useEffect(() => {
+    if(!currentCompany) return;
+    fetchDashboardById(currentCompany.id);
+  }, [currentCompany])
+  
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">

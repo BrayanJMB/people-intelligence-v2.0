@@ -44,7 +44,7 @@ import ManageRol from "../settings/Administrar-roles/administrar-roles";
 import Login from "../../login/login";
 import SearchModal from "../searchModal/search";
 import AdvancedAnalytics from "../advanced-analytics/advanced-analytics";
-import { selectActiveCompanies, fetchActiveCompany } from "../../features/companies/companiesSlice";
+import { selectActiveCompanies, fetchActiveCompany,currentCompanySelected } from "../../features/companies/companiesSlice";
 export default function LayoutPrincipal() {
 
   const dispatch = useDispatch();
@@ -248,6 +248,7 @@ export default function LayoutPrincipal() {
   };
 
   const handleOptionClick = (option) => {
+    console.log(option)
     setSelectedOption(option.businessName);
     setSelectedValue("Compañia");
     setSelectedColor(option.colorPrincipal);
@@ -267,7 +268,13 @@ export default function LayoutPrincipal() {
     // Guardar la opción seleccionada en localStorage
     localStorage.setItem("selectedOption", option.businessName);
     setIsOpen(false);
+    console.log(option.id)
+    dispatch(currentCompanySelected(option.id));
   };
+
+  useEffect(() => {
+    console.log("activeCompanies:", activeCompanies);
+  }, [activeCompanies]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -379,11 +386,14 @@ export default function LayoutPrincipal() {
       const storedCompany = activeCompanies.find(c => c.businessName === storedOption);
     
       if (storedCompany) {
+        console.log("📦 Stored company encontrada:", storedCompany);
         setSelectedOption(storedCompany.businessName);
+        dispatch(currentCompanySelected(storedCompany.id))
       } else {
         // Si no existe, usar la primera y actualizar el localStorage
         setSelectedOption(activeCompanies[0].businessName);
-        localStorage.setItem("selectedOption", activeCompanies[0].businessName);
+        localStorage.setItem("selectedOption", activeCompanies[0].businessName)
+        dispatch(currentCompanySelected(activeCompanies[0].id));
       }
     }, [activeCompanies]);
 

@@ -5,6 +5,11 @@ export const getAllDashboards = async () => {
   return response.data;
 };
 
+export const getAllDashboardsById = async (id:string) => {
+  const response = await api.get(`/PowerBy/by-company/${id}`);
+  return response.data;
+};
+
 export const CreateDashboard = async (data: any) => {
   const response = await api.post(`/PowerBy/`, data);
   return response.data;

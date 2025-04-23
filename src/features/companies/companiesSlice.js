@@ -49,7 +49,8 @@ const companiesSlice = createSlice({
   initialState,
   reducers: {
     currentCompanySelected(state, action) {
-      const company = state.companies.find((c) => c.id === action.payload);
+      const company = state.activeCompanies.find((c) => c.id === action.payload);
+      console.log(company)
       state.currentCompany = company || null;
     },
     setDrop(state, action) {
