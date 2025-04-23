@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 import arrowDown from "/assets/svg/arrow-down.svg";
 import "./layout.css";
 import Nav from "../nav-lateral/nav";
@@ -44,9 +44,13 @@ import ManageRol from "../settings/Administrar-roles/administrar-roles";
 import Login from "../../login/login";
 import SearchModal from "../searchModal/search";
 import AdvancedAnalytics from "../advanced-analytics/advanced-analytics";
-import { selectActiveCompanies, fetchActiveCompany,currentCompanySelected } from "../../features/companies/companiesSlice";
+import {
+  selectActiveCompanies,
+  fetchActiveCompany,
+  currentCompanySelected,
+} from "../../features/companies/companiesSlice";
+import PowerBi from "../PowerBI/PowerBI";
 export default function LayoutPrincipal() {
-
   const dispatch = useDispatch();
   const activeCompanies = useSelector(selectActiveCompanies);
   const [selectedOption, setSelectedOption] = useState("");
@@ -220,11 +224,11 @@ export default function LayoutPrincipal() {
   ];
 
   useEffect(() => {
-    console.log(activeCompanies)
+    console.log(activeCompanies);
     const initialOption = activeCompanies.find(
       (option) => option.businessName === selectedOption
     );
-    console.log(initialOption)
+    console.log(initialOption);
     if (initialOption) {
       setSelectedColor(initialOption.colorPrincipal);
       setSelectedImg(initialOption.logo);
@@ -248,7 +252,7 @@ export default function LayoutPrincipal() {
   };
 
   const handleOptionClick = (option) => {
-    console.log(option)
+    console.log(option);
     setSelectedOption(option.businessName);
     setSelectedValue("Compañia");
     setSelectedColor(option.colorPrincipal);
@@ -268,7 +272,7 @@ export default function LayoutPrincipal() {
     // Guardar la opción seleccionada en localStorage
     localStorage.setItem("selectedOption", option.businessName);
     setIsOpen(false);
-    console.log(option.id)
+    console.log(option.id);
     dispatch(currentCompanySelected(option.id));
   };
 
@@ -377,25 +381,27 @@ export default function LayoutPrincipal() {
     });
   };
 
-    // ✅ Establecer la opción seleccionada cuando activeCompanies cambie
-    useEffect(() => {
-      if (activeCompanies.length === 0) return;
-    
-      const storedOption = localStorage.getItem("selectedOption");
-      // Buscar si la opción guardada aún existe
-      const storedCompany = activeCompanies.find(c => c.businessName === storedOption);
-    
-      if (storedCompany) {
-        console.log("📦 Stored company encontrada:", storedCompany);
-        setSelectedOption(storedCompany.businessName);
-        dispatch(currentCompanySelected(storedCompany.id))
-      } else {
-        // Si no existe, usar la primera y actualizar el localStorage
-        setSelectedOption(activeCompanies[0].businessName);
-        localStorage.setItem("selectedOption", activeCompanies[0].businessName)
-        dispatch(currentCompanySelected(activeCompanies[0].id));
-      }
-    }, [activeCompanies]);
+  // ✅ Establecer la opción seleccionada cuando activeCompanies cambie
+  useEffect(() => {
+    if (activeCompanies.length === 0) return;
+
+    const storedOption = localStorage.getItem("selectedOption");
+    // Buscar si la opción guardada aún existe
+    const storedCompany = activeCompanies.find(
+      (c) => c.businessName === storedOption
+    );
+
+    if (storedCompany) {
+      console.log("📦 Stored company encontrada:", storedCompany);
+      setSelectedOption(storedCompany.businessName);
+      dispatch(currentCompanySelected(storedCompany.id));
+    } else {
+      // Si no existe, usar la primera y actualizar el localStorage
+      setSelectedOption(activeCompanies[0].businessName);
+      localStorage.setItem("selectedOption", activeCompanies[0].businessName);
+      dispatch(currentCompanySelected(activeCompanies[0].id));
+    }
+  }, [activeCompanies]);
 
   //Estado global
   useEffect(() => {
@@ -471,24 +477,27 @@ export default function LayoutPrincipal() {
                   isOpen ? "open" : "hidden"
                 }`}
               >
-                {activeCompanies && activeCompanies.map((option, index) => (
-                  <li
-                    key={index}
-                    onClick={() => handleOptionClick(option)}
-                    className={`flex items-center flex-row p-1 rounded transition-all duration-300 ${
-                      selectedOption === option.businessName ? "selected p-1" : ""
-                    }`}
-                  >
-                    <img
-                      className="w-[40px] h-[40px] rounded-full p-2 bg-[#F1F2F6]"
-                      src={option.logo || "/assets/img/people-icon.jpg"}
-                      alt=""
-                    />
-                    <div className="w-[300px] ps-3">
-                      <p>{option.businessName}</p>
-                    </div>
-                  </li>
-                ))}
+                {activeCompanies &&
+                  activeCompanies.map((option, index) => (
+                    <li
+                      key={index}
+                      onClick={() => handleOptionClick(option)}
+                      className={`flex items-center flex-row p-1 rounded transition-all duration-300 ${
+                        selectedOption === option.businessName
+                          ? "selected p-1"
+                          : ""
+                      }`}
+                    >
+                      <img
+                        className="w-[40px] h-[40px] rounded-full p-2 bg-[#F1F2F6]"
+                        src={option.logo || "/assets/img/people-icon.jpg"}
+                        alt=""
+                      />
+                      <div className="w-[300px] ps-3">
+                        <p>{option.businessName}</p>
+                      </div>
+                    </li>
+                  ))}
               </ul>
             </div>
             <div className="flex items-center flex-wrap">
@@ -529,12 +538,12 @@ export default function LayoutPrincipal() {
                       </li>
                     </Link>
 
-                      <Link to={"/administrar-usuario"}>
-                        <li className="py-1 px-4 hover:bg-gray-100 cursor-pointer">
-                          Administrar usuario
-                        </li>
-                      </Link>
-                    
+                    <Link to={"/administrar-usuario"}>
+                      <li className="py-1 px-4 hover:bg-gray-100 cursor-pointer">
+                        Administrar usuario
+                      </li>
+                    </Link>
+
                     <Link to={"/administrar-roles"}>
                       <li className="py-1 px-4 hover:bg-gray-100 cursor-pointer">
                         Administrar rol
@@ -624,6 +633,10 @@ export default function LayoutPrincipal() {
                 element={<LiveConversations titulo={setTituloPagina} />}
               />
               <Route
+                path="/powerbi/:idDashboard"
+                element={<PowerBi titulo={setTituloPagina} />}
+              />
+              <Route
                 path="/crear-conversacion"
                 element={
                   <CrearConversacion
@@ -667,7 +680,10 @@ export default function LayoutPrincipal() {
                   />
                 }
               />
-              <Route path="/advanced-analytics" element={<AdvancedAnalytics/>} />
+              <Route
+                path="/advanced-analytics"
+                element={<AdvancedAnalytics />}
+              />
               <Route
                 path="/registrar-dashboard"
                 element={<RegistroDashboard />}

@@ -1,5 +1,5 @@
 import listIcon from "/assets/svg/list.svg";
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 import { IconTrash, IconPencil, IconEye } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { SectionToolbar } from "../../shared/SectionToolbar";
@@ -12,12 +12,12 @@ import {
   getAllDashboards,
   UpdateDashboard,
   ToggleDashboardStatus,
-  getAllDashboardsById
+  getAllDashboardsById,
 } from "./services/dashboard.services";
 import { Dashboard, Report, Company } from "./types/dashboard.types";
 import { DashboardModalProps } from "./types/dashboard.types";
 import { selectCurrentCompany } from "../../../features/companies/companiesSlice";
-
+import { Link } from "react-router-dom";
 export default function RegistroDashboard() {
   const currentCompany = useSelector(selectCurrentCompany);
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -50,7 +50,7 @@ export default function RegistroDashboard() {
   const handleSwitchChange = async (id: string) => {
     const newState = !switchStates[id];
     setSwitchStates((prev) => ({ ...prev, [id]: newState }));
-  
+
     // Llama al servicio para guardar el cambio
     try {
       await ToggleDashboardStatus(id, newState);
@@ -70,7 +70,7 @@ export default function RegistroDashboard() {
       powerByDescriptionDashboardId: "",
       companyId: "",
     });
-    await fetchAllDashboards();
+    await fetchDashboardById(currentCompany?.id);
   };
 
   const handleEdit = (dashboard: Dashboard) => {
@@ -98,7 +98,7 @@ export default function RegistroDashboard() {
       companyId: "",
       powerByDescriptionDashboard: "",
     });
-    await fetchAllDashboards();
+    await fetchDashboardById(currentCompany?.id);
   };
 
   const handleCancel = () => {
@@ -136,10 +136,10 @@ export default function RegistroDashboard() {
     setCompanies(data);
   };
 
-  const fetchDashboardById = async (companyId: string) =>{
+  const fetchDashboardById = async (companyId: string) => {
     const data = await getAllDashboardsById(companyId);
     setDashboards(data);
-  }
+  };
 
   useEffect(() => {
     fetchAllCompanies();
@@ -155,10 +155,10 @@ export default function RegistroDashboard() {
   }, [dashboards]);
 
   useEffect(() => {
-    if(!currentCompany) return;
+    if (!currentCompany) return;
     fetchDashboardById(currentCompany.id);
-  }, [currentCompany])
-  
+  }, [currentCompany]);
+
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
@@ -242,7 +242,11 @@ export default function RegistroDashboard() {
                         </td>
                         <td className="py-5 px-4">
                           <span className="flex gap-1">
-                            <IconEye />
+                            {switchStates[dashboard.id] && (
+                              <Link to={`/powerbi/${dashboard.id}`}>
+                                <IconEye className="cursor-pointer" />
+                              </Link>
+                            )}
                             <IconPencil
                               className="cursor-pointer"
                               onClick={() => handleEdit(dashboard)}

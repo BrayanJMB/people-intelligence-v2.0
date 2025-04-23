@@ -1,0 +1,12 @@
+.Embed_container {
+    height: 80vh;
+    width: 100%;
+  }
+  .Embed_container iframe {
+    border: none;
+  }
+  
+  .content {
+    height: 100%;
+  }
+  

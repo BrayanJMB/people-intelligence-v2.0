@@ -2,7 +2,9 @@ import { StepNavigationButtons } from "../../../shared/StepNavigationButtons";
 import { ModalBase } from "../../../shared/ModalBase";
 import { Report, Company } from "../types/dashboard.types";
 import { DashboardModalProps } from "../types/dashboard.types";
-
+import { useSelector } from "react-redux";
+import { selectCurrentCompany } from "../../../../features/companies/companiesSlice";
+import { useEffect } from "react";
 export function DashboardModal({
   isEditing,
   data,
@@ -14,23 +16,16 @@ export function DashboardModal({
   onSubmit,
   currentStep,
 }: DashboardModalProps) {
+  const currentCompany = useSelector(selectCurrentCompany);
+
+  useEffect(() => {
+    if (!data.companyId && currentCompany?.id) {
+      onChange("companyId", currentCompany.id);
+    }
+  }, [data.companyId, currentCompany]);
   return (
     <ModalBase isEditing={isEditing}>
       <div className="grid grid-cols-2 gap-x-4">
-        <div className="col-span-1">
-          <label htmlFor="reportId" className="text-[14px]">
-            Report ID
-          </label>
-          <input
-            type="text"
-            name="reportId"
-            value={data.reportId}
-            onChange={(e) => onChange("reportId", e.target.value)}
-            placeholder="Escribe aquí"
-            className="w-full p-2 border rounded mb-4"
-          />
-        </div>
-
         <div className="col-span-1">
           <label htmlFor="groupId" className="text-[14px]">
             Grupo ID
@@ -44,14 +39,26 @@ export function DashboardModal({
             className="w-full p-2 border rounded mb-4"
           />
         </div>
-
+        <div className="col-span-1">
+          <label htmlFor="reportId" className="text-[14px]">
+            Report ID
+          </label>
+          <input
+            type="text"
+            name="reportId"
+            value={data.reportId}
+            onChange={(e) => onChange("reportId", e.target.value)}
+            placeholder="Escribe aquí"
+            className="w-full p-2 border rounded mb-4"
+          />
+        </div>
         <div className="col-span-1">
           <label htmlFor="companyId" className="text-[14px]">
             Nombre compañía
           </label>
           <select
             name="companyId"
-            value={data.companyId}
+            value={data.companyId || currentCompany?.id}
             onChange={(e) => onChange("companyId", e.target.value)}
             className="w-full p-2 border rounded mb-4"
           >
@@ -67,7 +74,10 @@ export function DashboardModal({
         </div>
 
         <div className="col-span-1">
-          <label htmlFor="powerByDescriptionDashboardId" className="text-[14px]">
+          <label
+            htmlFor="powerByDescriptionDashboardId"
+            className="text-[14px]"
+          >
             Nombre Reporte
           </label>
           <select

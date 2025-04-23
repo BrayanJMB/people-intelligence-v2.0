@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import { models, Embed, IEmbedConfiguration } from 'powerbi-client';
+import { models, Embed } from 'powerbi-client';
 import { PowerBIEmbed } from 'powerbi-client-react';
-
 import api from '../../api/api';
-
+import './PowerBI.css'; 
+import { useMsal } from '@azure/msal-react';
 
 type EmbedResponse = {
   token: string;
@@ -13,31 +13,16 @@ type EmbedResponse = {
   embedUrl: string;
 };
 
-type DecodedToken = {
-  email: string;
-};
 
 export default function PowerBi() {
-  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  const { instance, accounts, inProgress } = useMsal();
   const [response, setResponse] = useState<EmbedResponse | null>(null);
-  const [userEmail, setUserEmail] = useState<string>('');
   const navigate = useNavigate();
   const { idDashboard } = useParams();
 
-  const decodeToken = (token: string): DecodedToken => {
-    const base64Url = token.split('.')[1];
-    const base64 = decodeURIComponent(
-      atob(base64Url)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(base64);
-  };
-
   const accessToken = async () => {
     try {
-      const res = await api.get(`PowerBy/${idDashboard}`);
+      const res = await api.get(`PowerBy/embed-token/${idDashboard}`);
       const { powerBiEmbedToken, powerBiReport } = res.data;
 
       if (!powerBiEmbedToken || !powerBiReport) {
@@ -57,24 +42,26 @@ export default function PowerBi() {
       }
     }
   };
+  const filters: models.IBasicFilter[] = [
+    {
+      $schema: 'http://powerbi.com/product/schema#basic',
+      filterType: models.FilterType.Basic,
+      target: {
+        table: 'z_RLS',
+        column: 'user_name',
+      },
+      operator: 'In',
+      values: ['milianbrayanc@gmail.com'],
+    },
+  ];
 
   useEffect(() => {
-    if (userInfo.role?.includes('PowerBiDashboard')) {
-      accessToken();
-    } else {
-      alert('No tiene permiso para acceder a esta funcionalidad');
-      navigate('/dashboard');
-    }
-
-    if (userInfo.accessToken) {
-      const decoded = decodeToken(userInfo.accessToken);
-      setUserEmail(decoded.email);
-    }
+    accessToken();
   }, []);
   
   return (
-    <Box sx={{ display: 'flex' }}>
-      <div style={{ backgroundColor: 'white' }}>
+    <Box>
+      <div>
         <div>
           {response && (
             <PowerBIEmbed
@@ -93,18 +80,7 @@ export default function PowerBi() {
                     },
                   },
                 },
-                /*
-                filters: [
-                  {
-                    $schema: 'http://powerbi.com/product/schema#basic',
-                    target: {
-                      table: 'z_RLS',
-                      column: 'user_name',
-                    },
-                    operator: 'In',
-                    values: [userEmail],
-                  },
-                ],*/
+                filters: filters,
               }}
               eventHandlers={
                 new Map([
@@ -112,10 +88,11 @@ export default function PowerBi() {
                   ['rendered', () => console.log('Report rendered')],
                 ])
               }
-              cssClassName="report-style-class"
+              cssClassName="Embed_container"
               getEmbeddedComponent={(embeddedReport: Embed) => {
                 (window as any).report = embeddedReport;
               }}
+              
             />
           )}
         </div>
