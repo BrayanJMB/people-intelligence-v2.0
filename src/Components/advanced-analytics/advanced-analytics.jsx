@@ -1,75 +1,23 @@
 import { IconDots, IconSearch, IconSortDescending } from "@tabler/icons-react";
-
+import api from "../../api/api";
 import imgEj from "/assets/img/img-ej.png";
-
+import { Link } from "react-router-dom";
 import imgEj2 from "/assets/img/img-ej2.png";
-
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { selectCurrentCompany } from "../../features/companies/companiesSlice";
 export default function AdvancedAnalytics() {
-  const cards = [
-    {
-      title: "Example interview title",
-
-      date: "12/Jun/2024",
-
-      imageUrl: `${imgEj}`,
-    },
-
-    {
-      title: "Example interview title",
-
-      date: "12/Jun/2024",
-
-      imageUrl: `${imgEj2}`,
-    },
-
-    {
-      title: "Example interview title",
-
-      date: "12/Jun/2024",
-
-      imageUrl: `${imgEj}`,
-    },
-
-    {
-      title: "Example interview title",
-
-      date: "12/Jun/2024",
-
-      imageUrl: `${imgEj2}`,
-    },
-
-    {
-      title: "Example interview title",
-
-      date: "12/Jun/2024",
-
-      imageUrl: `${imgEj}`,
-    },
-
-    {
-      title: "Example interview title",
-
-      date: "12/Jun/2024",
-
-      imageUrl: `${imgEj2}`,
-    },
-
-    {
-      title: "Example interview title",
-
-      date: "12/Jun/2024",
-
-      imageUrl: `${imgEj}`,
-    },
-
-    {
-      title: "Example interview title",
-
-      date: "12/Jun/2024",
-
-      imageUrl: `${imgEj2}`,
-    },
-  ];
+  const [cards, setCards] = useState([]);
+  const currentCompany = useSelector(selectCurrentCompany);
+  
+  const fetchActiveDashboards = async (companyId) => {
+    const data = await api.get(`/PowerBy/active/by-company/${companyId}`);
+    setCards(data.data);
+  };
+  useEffect(() => {
+    if(!currentCompany)return;
+    fetchActiveDashboards(currentCompany.id);
+  }, [cards]);
 
   return (
     <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
@@ -100,50 +48,54 @@ export default function AdvancedAnalytics() {
           </div>
 
           <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-5 mt-6">
-            {cards.map((card, index) => (
-              <div
-                key={index}
-                className="p-4 border rounded-[19px] shadow-md flex flex-col justify-evenly relative overflow-hidden"
-              >
-                <div className="relative">
-                  <h4 className="font-semibold text-lg">{card.title}</h4>
+            {cards &&
+              cards.map((card, index) => (
+                <div
+                  key={index}
+                  className="p-4 border rounded-[19px] shadow-md flex flex-col justify-evenly relative overflow-hidden"
+                >
+                  <div className="relative">
+                    <h4 className="font-semibold text-lg">{card.reportName}</h4>
 
-                  <span className="text-sm text-gray-500">{card.date}</span>
-                </div>
+                    <span className="text-sm text-gray-500">{card.date}</span>
+                  </div>
 
-                <div className="flex justify-end relative group ms-auto">
-                  <button className="text-gray-500 text-[48px] absolute top-[-50px] bg-[#E3E3E3] flex items-center justify-center rounded transition px-1">
-                    <IconDots stroke={2} />
-                  </button>
+                  <div className="flex justify-end relative group ms-auto">
+                    <button className="text-gray-500 text-[48px] absolute top-[-50px] bg-[#E3E3E3] flex items-center justify-center rounded transition px-1">
+                      <IconDots stroke={2} />
+                    </button>
 
-                  <div className="hidden group-hover:flex flex-col absolute top-[-28px] w-max right-[10px] bg-white shadow-[4px_7px_15px_#13162D26] p-2 rounded z-10">
-                    <a href="#" className="hover:bg-gray-100 p-2 rounded">
-                      Ir al tablero
-                    </a>
+                    <div className="hidden group-hover:flex flex-col absolute top-[-28px] w-max right-[10px] bg-white shadow-[4px_7px_15px_#13162D26] p-2 rounded z-10">
+                      <Link
+                        to={`/powerbi/${card.id}`}
+                        className="hover:bg-gray-100 p-2 rounded block"
+                      >
+                        Ir al tablero
+                      </Link>
 
-                    <a href="#" className="hover:bg-gray-100 p-2 rounded">
-                      Quitar de destacados
-                    </a>
-
+                      <a href="#" className="hover:bg-gray-100 p-2 rounded">
+                        Quitar de destacados
+                      </a>
+                      {/*
                     <a href="#" className="hover:bg-gray-100 p-2 rounded">
                       Gestionar encuesta
                     </a>
 
                     <a href="#" className="hover:bg-gray-100 p-2 rounded">
                       Gestionar conversación
-                    </a>
+                    </a>*/}
+                    </div>
+                  </div>
+
+                  <div className="translate-y-[16px]">
+                    <img
+                      src={card.imageUrl}
+                      alt={card.title}
+                      className="min-w-[calc(100%+32px)] -translate-x-[16px]  h-40 object-cover"
+                    />
                   </div>
                 </div>
-
-                <div className="translate-y-[16px]">
-                  <img
-                    src={card.imageUrl}
-                    alt={card.title}
-                    className="min-w-[calc(100%+32px)] -translate-x-[16px]  h-40 object-cover"
-                  />
-                </div>
-              </div>
-            ))}
+              ))}
           </section>
         </div>
       </section>
