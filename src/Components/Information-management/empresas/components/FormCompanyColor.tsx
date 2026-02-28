@@ -37,7 +37,24 @@ const btnSecundarioFields: ColorFieldConfig[] = [
   { label: "Texto Secundario", name: "btnSecundarioColorTexto" },
 ];
 
+const defaultColors: Partial<CompanyForm> = {
+  colorPrimario: "#FFFFFF",
+  colorSecundario: "#000000",
+  colorTerciario: "#000000",
+  HeaderColorTextos: "#000000",
+  HeaderColorIcons: "#000000",
+  navColorIcon: "#000000",
+  navColorFondoIcon: "",
+  btnPrimarioColor: "",
+  btnPrimarioColorTexto: "",
+  btnSecundarioColor: "",
+  btnSecundarioColorTexto: "",
+};
+
 export const FormCompanyColor: React.FC<FormCompanyColorProps> = ({ data, setData }) => {
+  const handleResetColors = () => {
+    setData((prev) => ({ ...prev, ...defaultColors }));
+  };
   const renderFields = (fields: ColorFieldConfig[]) =>
     fields.map(({ label, name }) => (
       <InputColorField
@@ -55,7 +72,16 @@ export const FormCompanyColor: React.FC<FormCompanyColorProps> = ({ data, setDat
 
       {/* Colores del tema */}
       <div className="col-span-4">
-        <h2 className="font-bold my-3">Colores del tema</h2>
+        <div className="flex justify-between items-center my-3">
+          <h2 className="font-bold">Colores del tema</h2>
+          <button
+            type="button"
+            onClick={handleResetColors}
+            className="text-sm btn btn-secundario"
+          >
+            Restaurar colores por defecto
+          </button>
+        </div>
         <div className="grid grid-cols-3 gap-x-4">
           {renderFields(temaFields)}
         </div>
