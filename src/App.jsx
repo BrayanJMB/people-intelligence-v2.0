@@ -13,12 +13,17 @@ export function useAuth() {
 function App() {
   const { instance, accounts, inProgress } = useMsal();
   const [initialized, setInitialized] = useState(false);
-  const [isHandlingRedirect, setIsHandlingRedirect] = useState(true);
   const [accessToken, setAccessToken] = useState(null);
   const [userRoles, setUserRoles] = useState([]);
   const [company, setCompany] = useState(null);
   const [checkingCompany, setCheckingCompany] = useState(true);
-
+console.log("🔍 ENV VARS:", {
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+  TENANT_DOMAIN: import.meta.env.VITE_TENANT_DOMAIN,
+  AUTHORITY: import.meta.env.VITE_AUTHORITY,
+  FRONTEND_CLIENT_ID: import.meta.env.VITE_FRONTEND_CLIENT_ID,
+  SCOPE: import.meta.env.VITE_SCOPE,
+});
   // ✅ Establecer cuenta activa
   useEffect(() => {
     if (accounts.length > 0) {
@@ -29,7 +34,7 @@ function App() {
   // ✅ Procesar tokens y extraer roles
 useEffect(() => {
   if (!initialized) return;
-  setIsHandlingRedirect(true);
+  if (accounts.length === 0) return; // 👈 esperar que haya cuenta
 
   instance
     .handleRedirectPromise()
@@ -55,9 +60,7 @@ useEffect(() => {
     })
     .catch((error) => {
       console.error("Error en el flujo de tokens:", error);
-    }).finally(() => {
-      setIsHandlingRedirect(false); // 👈 liberar cuando termine
-    });;
+    });
 }, [initialized, instance, accounts]); // 👈 agregar accounts aquí
 
   // ✅ Inicializar MSAL
@@ -79,7 +82,6 @@ useEffect(() => {
   useEffect(() => {
     if (
       initialized &&
-      !isHandlingRedirect &&
       inProgress === InteractionStatus.None &&
       accounts.length === 0
     ) {
@@ -145,7 +147,6 @@ useEffect(() => {
   // ✅ Mostrar loader general
   if (
     !initialized ||
-    isHandlingRedirect ||
     (inProgress !== InteractionStatus.None && accounts.length === 0)
   ) {
     return <div>Cargando autenticación...</div>;
