@@ -4,7 +4,7 @@ import { InteractionStatus } from "@azure/msal-browser";
 import { loginRequest } from "./authConfig";
 import LayoutPrincipal from "./Components/LayoutPrincipal/layout";
 import api from "./api/api";
-
+import { Toaster } from "react-hot-toast";
 const AuthContext = createContext();
 export function useAuth() {
   return useContext(AuthContext);
@@ -150,7 +150,9 @@ function App() {
         <h2 className="text-xl font-bold">Acceso restringido</h2>
         <p>No tienes una compañía asignada. Contacta con el administrador.</p>
         <button
-          onClick={() => instance.logoutRedirect({ postLogoutRedirectUri: "/" })}
+          onClick={() =>
+            instance.logoutRedirect({ postLogoutRedirectUri: "/" })
+          }
           className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
         >
           🔙 Cerrar sesión
@@ -161,6 +163,29 @@ function App() {
 
   return (
     <AuthContext.Provider value={{ accessToken, userRoles, company }}>
+      <Toaster
+        position="bottom-left"
+        toastOptions={{
+          success: {
+            style: {
+              background: "#22c55e",
+              color: "white",
+            },
+          },
+          error: {
+            style: {
+              background: "#ef4444",
+              color: "white",
+            },
+          },
+          loading: {
+            style: {
+              background: "#eab308",
+              color: "white",
+            },
+          },
+        }}
+      />
       {accounts.length > 0 && <LayoutPrincipal />}
     </AuthContext.Provider>
   );

@@ -1,8 +1,6 @@
-import {
-  IconPlus,
-  IconArrowLeft,
-} from "@tabler/icons-react";
-import { useState, useEffect,useCallback, useMemo } from "react";
+import { IconPlus, IconArrowLeft } from "@tabler/icons-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import toast from "react-hot-toast";
 import {
   createCompany,
   deleteCompany,
@@ -26,6 +24,7 @@ import { StepNavigationButtons } from "../../shared/StepNavigationButtons";
 import { useFilteredItems } from "../../Hooks/useFilteredItems";
 import { TableWithSortAndSearch } from "../../shared/TableWithSortAndSearch";
 import { informationCompanies } from "./schemas/tableCompany.schema";
+
 export default function InformationEmpresas() {
   const {
     data,
@@ -43,6 +42,7 @@ export default function InformationEmpresas() {
     fetchCompanies,
     loading,
   } = useInformationLogic();
+
   const dispatch = useDispatch();
   const currentCompany = useSelector(selectCurrentCompany);
   const [currentStep, setCurrentStep] = useState(1);
@@ -52,22 +52,20 @@ export default function InformationEmpresas() {
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { accounts } = useMsal();
+
   const { filteredItems } = useFilteredItems(
     companies,
     "businessName",
     searchTerm,
     sortField,
-    sortDirection
+    sortDirection,
   );
-  // Calcula el índice de los elementos mostrados en la página actual
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
-
-  // Número total de páginas
   const totalPages = Math.ceil(companies.length / itemsPerPage);
 
-  // Función para manejar los pasos del modal
   const handleNextStep = () => {
     if (!validateFields()) return;
     setCurrentStep((prevStep) => prevStep + 1);
@@ -76,8 +74,8 @@ export default function InformationEmpresas() {
   const handlePrevStep = () => {
     setCurrentStep((prevStep) => prevStep - 1);
   };
+
   const [switchStates, setSwitchStates] = useState({});
-  // Estado de los switches
 
   const handleSort = useCallback((field) => {
     setSortField((prev) => {
@@ -95,37 +93,38 @@ export default function InformationEmpresas() {
     return sortItems(currentItems, sortField, sortDirection, getValue);
   }, [currentItems, sortField, sortDirection]);
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
-  // Manejador de cambios para el switch
   const handleSwitchChange = async (id) => {
     const newValue = !switchStates[id];
-    setSwitchStates((prevStates) => ({
-      ...prevStates,
-      [id]: !prevStates[id],
-    }));
-    await updateStatusCompany(id, { isActive: newValue });
+    setSwitchStates((prevStates) => ({ ...prevStates, [id]: !prevStates[id] }));
+
+    await toast.promise(updateStatusCompany(id, { isActive: newValue }), {
+      loading: "Actualizando estado...",
+      success: `Empresa ${newValue ? "activada" : "desactivada"}`,
+      error: "Error al cambiar el estado",
+    });
+
     if (accounts[0].localAccountId) {
       dispatch(fetchActiveCompany({ idUser: accounts[0].localAccountId }));
     }
   };
 
-  // modal empresas
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState(null);
 
   const handleCreate = async () => {
     setCurrentStep(1);
-    // Cerrar el modal y resetear estado
     setOpenModal(false);
-    await createCompany(accounts[0].localAccountId, data);
+
+    await toast.promise(createCompany(accounts[0].localAccountId, data), {
+      loading: "Creando empresa...",
+      success: "Empresa creada exitosamente",
+      error: "Error al crear la empresa",
+    });
+
     setData(emptyCompanyForm);
-    await fetchCompanies(); // 👈 Después trae los nuevos datos
+    await fetchCompanies();
   };
 
-  // editar categorias
   const handleEdit = (empresa) => {
     setCurrentStep(1);
     setEditing(empresa);
@@ -138,7 +137,6 @@ export default function InformationEmpresas() {
       sector: empresa.idSector,
       img: empresa.logo,
       activo: empresa.activo,
-      // 🎨 Colores personalizados
       colorPrimario: empresa.colorPrincipal || "",
       colorsecundario: empresa.colorSecundario || "",
       colorTerciario: empresa.colorTerciario || "",
@@ -160,9 +158,15 @@ export default function InformationEmpresas() {
   };
 
   const handleConfirmDelete = async () => {
-    await deleteCompany(selectedCompanyId);
     setShowDeleteModal(false);
     setSelectedCompanyId(null);
+
+    await toast.promise(deleteCompany(selectedCompanyId), {
+      loading: "Eliminando empresa...",
+      success: "Empresa eliminada exitosamente",
+      error: "Error al eliminar la empresa",
+    });
+
     await fetchCompanies();
     if (accounts[0].localAccountId) {
       dispatch(fetchActiveCompany({ idUser: accounts[0].localAccountId }));
@@ -171,19 +175,24 @@ export default function InformationEmpresas() {
 
   const handleUpdate = async () => {
     setCurrentStep(1);
-    // Realiza la lógica para actualizar el mapa
     setOpenModal(false);
     setEditing(null);
     setData(emptyCompanyForm);
-    await updateCompany(data);
-    await fetchCompanies(); // 👈 Después trae los nuevos datos
+
+    await toast.promise(updateCompany(data), {
+      loading: "Actualizando empresa...",
+      success: "Empresa actualizada exitosamente",
+      error: "Error al actualizar la empresa",
+    });
+
+    await fetchCompanies();
     if (accounts[0].localAccountId) {
       dispatch(fetchActiveCompany({ idUser: accounts[0].localAccountId }));
     }
   };
+
   const handleCancel = () => {
     setCurrentStep(1);
-    // Realiza la lógica para actualizar el mapa
     setOpenModal(false);
     setErrors({});
     setEditing(null);
@@ -198,11 +207,12 @@ export default function InformationEmpresas() {
     ) {
       const initialStates = currentItems.reduce(
         (acc, empresa) => ({ ...acc, [empresa.id]: empresa.isActive }),
-        {}
+        {},
       );
       setSwitchStates(initialStates);
     }
   }, [currentItems]);
+
   return (
     <>
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
@@ -212,15 +222,14 @@ export default function InformationEmpresas() {
             <p>(Empresas en vivo)</p>
           </div>
           <button
-            onClick={() => {
-              setOpenModal(!openModal);
-            }}
+            onClick={() => setOpenModal(!openModal)}
             className="btn btn-principal"
           >
             <IconPlus />
             <span>Crear Empresa</span>
           </button>
         </section>
+
         <section className="my-6 bg-white p-8 rounded-[20px]">
           <div className="flex justify-between items-center px-4 mb-4">
             <h2 className="text-lg font-semibold">Listado de empresas</h2>
@@ -230,7 +239,7 @@ export default function InformationEmpresas() {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
-                setCurrentPage(1); // Reinicia la paginación al buscar
+                setCurrentPage(1);
               }}
               className="border px-3 py-2 rounded-md w-60 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -249,8 +258,6 @@ export default function InformationEmpresas() {
               switchStates={switchStates}
             />
           </div>
-
-          {/* Paginador */}
           <PaginatorTable
             currentPage={currentPage}
             totalPages={totalPages}
@@ -260,14 +267,17 @@ export default function InformationEmpresas() {
       </section>
 
       {openModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-        onClick={handleCancel}
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+          onClick={handleCancel}
         >
-          <div className="bg-white p-8 rounded-lg shadow-lg w-[800px]"
-          onClick={(e) => e.stopPropagation()}>
+          <div
+            className="bg-white p-8 rounded-lg shadow-lg w-[800px]"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center mb-4 gap-4">
               <button
-                onClick={() => handlePrevStep()}
+                onClick={handlePrevStep}
                 className={`flex items-center gap-3 text-gray-700 hover:text-gray-500 w-max ${
                   currentStep === 1 && "hidden"
                 }`}
@@ -276,14 +286,12 @@ export default function InformationEmpresas() {
                   stroke={2}
                   className="w-8 h-8 text-black bg-[#E9EBF0] rounded p-1"
                 />
-                {/* <IconArrowBigLeftFilled stroke={2} /> */}
               </button>
               <h3 className="text-[22px] font-bold">
                 {editing ? "Editar empresa" : "Crear empresa"}
               </h3>
             </div>
 
-            {/* Control de pasos */}
             {currentStep === 1 && (
               <div className="grid grid-cols-2 gap-x-4">
                 <FormCompany
@@ -299,21 +307,21 @@ export default function InformationEmpresas() {
             )}
 
             {currentStep === 2 && (
-              <>
-                <FormCompanyColor data={data} setData={setData} />
-              </>
+              <FormCompanyColor data={data} setData={setData} />
             )}
+
             <StepNavigationButtons
               onCancel={handleCancel}
               onNext={handleNextStep}
               onSubmit={editing ? handleUpdate : handleCreate}
               editing={editing}
               currentStep={currentStep}
-              totalSteps={2} // o 3, dependiendo de tu flujo
+              totalSteps={2}
             />
           </div>
         </div>
       )}
+
       {showDeleteModal && (
         <DeleteModal
           onClose={() => setShowDeleteModal(false)}
