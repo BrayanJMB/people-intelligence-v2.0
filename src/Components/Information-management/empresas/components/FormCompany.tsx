@@ -12,7 +12,7 @@ interface FormCompanyProps {
   countries: CountryType[];
   sizeCompanies: SizeCompanyType[];
   sectors: SectorType[];
-  errors?: Record<string, string>; 
+  errors?: Record<string, string>;
   setErrors?: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
@@ -65,16 +65,54 @@ export const FormCompany: React.FC<FormCompanyProps> = ({
         <label htmlFor="img" className="text-[14px]">
           Imagen
         </label>
+
+        {data.img ? (
+          <div className="flex items-center gap-3 mb-2">
+            <img
+              src={
+                typeof data.img === "string"
+                  ? data.img
+                  : URL.createObjectURL(data.img)
+              }
+              alt="Logo empresa"
+              className="w-16 h-16 object-contain rounded border"
+            />
+            <div className="flex flex-col gap-1">
+              <label
+                htmlFor="img"
+                className="text-sm text-blue-500 hover:text-blue-700 cursor-pointer"
+              >
+                Cambiar imagen
+              </label>
+              <button
+                type="button"
+                onClick={() => setData((prev) => ({ ...prev, img: null }))}
+                className="text-sm text-red-500 hover:text-red-700 text-left"
+              >
+                Quitar imagen
+              </button>
+            </div>
+          </div>
+        ) : (
+          <label
+            htmlFor="img"
+            className="flex items-center justify-center w-full h-16 border-2 border-dashed rounded cursor-pointer text-sm text-gray-400 hover:text-gray-600 hover:border-gray-400 mb-2"
+          >
+            Seleccionar imagen
+          </label>
+        )}
+
         <input
           type="file"
+          id="img"
           name="img"
+          className="hidden"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setData((prev) => ({
               ...prev,
               img: e.target.files ? e.target.files[0] : null,
             }))
           }
-          className="w-full p-2 border rounded mb-4"
         />
       </div>
     </>
