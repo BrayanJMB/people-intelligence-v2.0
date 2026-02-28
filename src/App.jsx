@@ -13,6 +13,7 @@ export function useAuth() {
 function App() {
   const { instance, accounts, inProgress } = useMsal();
   const [initialized, setInitialized] = useState(false);
+  const [isHandlingRedirect, setIsHandlingRedirect] = useState(true);
   const [accessToken, setAccessToken] = useState(null);
   const [userRoles, setUserRoles] = useState([]);
   const [company, setCompany] = useState(null);
@@ -28,7 +29,7 @@ function App() {
   // ✅ Procesar tokens y extraer roles
 useEffect(() => {
   if (!initialized) return;
-  if (accounts.length === 0) return; // 👈 esperar que haya cuenta
+  setIsHandlingRedirect(true);
 
   instance
     .handleRedirectPromise()
@@ -54,7 +55,9 @@ useEffect(() => {
     })
     .catch((error) => {
       console.error("Error en el flujo de tokens:", error);
-    });
+    }).finally(() => {
+      setIsHandlingRedirect(false); // 👈 liberar cuando termine
+    });;
 }, [initialized, instance, accounts]); // 👈 agregar accounts aquí
 
   // ✅ Inicializar MSAL
@@ -76,6 +79,7 @@ useEffect(() => {
   useEffect(() => {
     if (
       initialized &&
+      !isHandlingRedirect &&
       inProgress === InteractionStatus.None &&
       accounts.length === 0
     ) {
@@ -141,6 +145,7 @@ useEffect(() => {
   // ✅ Mostrar loader general
   if (
     !initialized ||
+    isHandlingRedirect ||
     (inProgress !== InteractionStatus.None && accounts.length === 0)
   ) {
     return <div>Cargando autenticación...</div>;
