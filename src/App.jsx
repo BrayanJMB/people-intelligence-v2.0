@@ -26,40 +26,36 @@ function App() {
   }, [accounts, instance]);
 
   // ✅ Procesar tokens y extraer roles
-  useEffect(() => {
-    instance
-      .handleRedirectPromise()
-      .then((redirectResponse) => {
-        if (redirectResponse) {
-          setAccessToken(redirectResponse.accessToken);
-          extractRolesFromToken(redirectResponse.accessToken);
-        }
+useEffect(() => {
+  if (!initialized) return;
+  if (accounts.length === 0) return; // 👈 esperar que haya cuenta
 
-        return instance.acquireTokenSilent({
-          ...loginRequest,
-          account: instance.getActiveAccount(),
-        });
-      })
-      .then((tokenResponse) => {
-        if (tokenResponse) {
-          setAccessToken(tokenResponse.accessToken);
-          extractRolesFromToken(tokenResponse.accessToken);
-        }
-      })
-      .catch((error) => {
-        console.error("Error en el flujo de tokens:", error);
-        if (error.errorMessage?.includes("AADB2C90118")) {
-          instance
-            .loginRedirect({
-              ...loginRequest,
-              authority: b2cPolicies.authorities.forgotPassword.authority,
-            })
-            .catch((err) =>
-              console.error("Error al redirigir al flujo de restablecimiento:", err)
-            );
-        }
+  instance
+    .handleRedirectPromise()
+    .then((redirectResponse) => {
+      if (redirectResponse) {
+        setAccessToken(redirectResponse.accessToken);
+        extractRolesFromToken(redirectResponse.accessToken);
+      }
+
+      const account = instance.getActiveAccount();
+      if (!account) return null; // 👈 por si acaso
+
+      return instance.acquireTokenSilent({
+        ...loginRequest,
+        account: account,
       });
-  }, [initialized, instance]);
+    })
+    .then((tokenResponse) => {
+      if (tokenResponse) {
+        setAccessToken(tokenResponse.accessToken);
+        extractRolesFromToken(tokenResponse.accessToken);
+      }
+    })
+    .catch((error) => {
+      console.error("Error en el flujo de tokens:", error);
+    });
+}, [initialized, instance, accounts]); // 👈 agregar accounts aquí
 
   // ✅ Inicializar MSAL
   useEffect(() => {
@@ -107,7 +103,7 @@ function App() {
   useEffect(() => {
     const fetchCompany = async () => {
       if (!accessToken) return;
-      console.log("ok")
+      console.log(accessToken)
       try {
         const res = await api.get("User/compania-asignada", {
           headers: {
