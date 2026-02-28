@@ -6,128 +6,92 @@ interface FormCompanyColorProps {
   setData: React.Dispatch<React.SetStateAction<CompanyForm>>;
 }
 
-export const FormCompanyColor: React.FC<FormCompanyColorProps> = ({
-  data,
-  setData,
-}) => {
+type ColorFieldConfig = {
+  label: string;
+  name: keyof CompanyForm;
+};
+
+const temaFields: ColorFieldConfig[] = [
+  { label: "Color Primario", name: "colorPrimario" },
+  { label: "Color Secundario", name: "colorSecundario" },
+  { label: "Color Terciario", name: "colorTerciario" },
+];
+
+const headerFields: ColorFieldConfig[] = [
+  { label: "Color Textos", name: "HeaderColorTextos" },
+  { label: "Color Icons", name: "HeaderColorIcons" },
+];
+
+const navFields: ColorFieldConfig[] = [
+  { label: "Color Icono", name: "navColorIcon" },
+  { label: "Fondo Icono", name: "navColorFondoIcon" },
+];
+
+const btnPrimarioFields: ColorFieldConfig[] = [
+  { label: "Fondo Primario", name: "btnPrimarioColor" },
+  { label: "Texto Primario", name: "btnPrimarioColorTexto" },
+];
+
+const btnSecundarioFields: ColorFieldConfig[] = [
+  { label: "Fondo Secundario", name: "btnSecundarioColor" },
+  { label: "Texto Secundario", name: "btnSecundarioColorTexto" },
+];
+
+export const FormCompanyColor: React.FC<FormCompanyColorProps> = ({ data, setData }) => {
+  const renderFields = (fields: ColorFieldConfig[]) =>
+    fields.map(({ label, name }) => (
+      <InputColorField
+        key={name}
+        label={label}
+        name={name}
+        value={data[name] as string}
+        onChange={(value) => setData((prev) => ({ ...prev, [name]: value }))}
+      />
+    ));
+
   return (
     <div className="grid grid-cols-4 gap-x-4">
       <input type="hidden" name="activo" value={String(data.activo)} />
 
+      {/* Colores del tema */}
       <div className="col-span-4">
         <h2 className="font-bold my-3">Colores del tema</h2>
-      </div>
-
-      <div className="grid grid-cols-3 col-span-4 gap-x-4">
-        <InputColorField
-          label="Color Primario"
-          name="colorPrimario"
-          value={data.colorPrimario}
-          onChange={(value) =>
-            setData((prev) => ({ ...prev, colorPrimario: value }))
-          }
-        />
-        <InputColorField
-          label="Color Secundario"
-          name="colorSecundario"
-          value={data.colorSecundario}
-          onChange={(value) =>
-            setData((prev) => ({ ...prev, colorSecundario: value }))
-          }
-        />
-        <InputColorField
-          label="Color Terciario"
-          name="colorTerciario"
-          value={data.colorTerciario}
-          onChange={(value) =>
-            setData((prev) => ({ ...prev, colorTerciario: value }))
-          }
-        />
-      </div>
-
-      <div className="col-span-4 grid grid-cols-4 gap-x-4 my-3">
-        <div className="col-span-2">
-          <h2 className="font-bold">Header</h2>
-        </div>
-        <div className="col-span-2">
-          <h2 className="font-bold">Barra lateral</h2>
+        <div className="grid grid-cols-3 gap-x-4">
+          {renderFields(temaFields)}
         </div>
       </div>
 
-      <InputColorField
-        label="Color Textos"
-        name="HeaderColorTextos"
-        value={data.HeaderColorTextos}
-        onChange={(value) =>
-          setData((prev) => ({ ...prev, HeaderColorTextos: value }))
-        }
-      />
-      <InputColorField
-        label="Color Icons"
-        name="HeaderColorIcons"
-        value={data.HeaderColorIcons}
-        onChange={(value) =>
-          setData((prev) => ({ ...prev, HeaderColorIcons: value }))
-        }
-      />
-      <InputColorField
-        label="Color Icono"
-        name="navColorIcon"
-        value={data.navColorIcon}
-        onChange={(value) =>
-          setData((prev) => ({ ...prev, navColorIcon: value }))
-        }
-      />
-      <InputColorField
-        label="Fondo Icono"
-        name="navColorFondoIcon"
-        value={data.navColorFondoIcon}
-        onChange={(value) =>
-          setData((prev) => ({ ...prev, navColorFondoIcon: value }))
-        }
-      />
-
-      <div className="col-span-4 grid grid-cols-4 gap-x-4 my-3">
-        <div className="col-span-2">
-          <h2 className="font-bold">Botón primario</h2>
+      {/* Header y Barra lateral */}
+      <div className="col-span-4 grid grid-cols-2 gap-x-4 my-3">
+        <div>
+          <h2 className="font-bold mb-2">Header</h2>
+          <div className="grid grid-cols-2 gap-x-4">
+            {renderFields(headerFields)}
+          </div>
         </div>
-        <div className="col-span-2">
-          <h2 className="font-bold">Botón secundario</h2>
+        <div>
+          <h2 className="font-bold mb-2">Barra lateral</h2>
+          <div className="grid grid-cols-2 gap-x-4">
+            {renderFields(navFields)}
+          </div>
         </div>
       </div>
 
-      <InputColorField
-        label="Fondo Primario"
-        name="btnPrimarioColor"
-        value={data.btnPrimarioColor}
-        onChange={(value) =>
-          setData((prev) => ({ ...prev, btnPrimarioColor: value }))
-        }
-      />
-      <InputColorField
-        label="Texto Primario"
-        name="btnPrimarioColorTexto"
-        value={data.btnPrimarioColorTexto}
-        onChange={(value) =>
-          setData((prev) => ({ ...prev, btnPrimarioColorTexto: value }))
-        }
-      />
-      <InputColorField
-        label="Fondo Secundario"
-        name="btnSecundarioColor"
-        value={data.btnSecundarioColor}
-        onChange={(value) =>
-          setData((prev) => ({ ...prev, btnSecundarioColor: value }))
-        }
-      />
-      <InputColorField
-        label="Texto Secundario"
-        name="btnSecundarioColorTexto"
-        value={data.btnSecundarioColorTexto}
-        onChange={(value) =>
-          setData((prev) => ({ ...prev, btnSecundarioColorTexto: value }))
-        }
-      />
+      {/* Botones */}
+      <div className="col-span-4 grid grid-cols-2 gap-x-4 my-3">
+        <div>
+          <h2 className="font-bold mb-2">Botón primario</h2>
+          <div className="grid grid-cols-2 gap-x-4">
+            {renderFields(btnPrimarioFields)}
+          </div>
+        </div>
+        <div>
+          <h2 className="font-bold mb-2">Botón secundario</h2>
+          <div className="grid grid-cols-2 gap-x-4">
+            {renderFields(btnSecundarioFields)}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
