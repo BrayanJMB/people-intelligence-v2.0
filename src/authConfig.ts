@@ -65,13 +65,14 @@ export const loginRequest = {
 import { LogLevel } from "@azure/msal-browser";
 import { ENV } from "./config/env";
 export const b2cPolicies = {};
+const currentOrigin = window.location.origin;
 export const msalConfig = {
   auth: {
     clientId: ENV.FRONTEND_CLIENT_ID,
     authority: ENV.AUTHORITY,
     knownAuthorities: [ENV.TENANT_DOMAIN],
-    redirectUri: ENV.REDIRECT_URI,
-    postLogoutRedirectUri: ENV.POST_LOGOUT_REDIRECT_URI,
+    redirectUri: currentOrigin,
+    postLogoutRedirectUri: currentOrigin,
     navigateToLoginRequestUrl: false,
   },
   cache: {
