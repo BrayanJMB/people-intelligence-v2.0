@@ -268,13 +268,9 @@ export default function InformationEmpresas() {
 
       {openModal && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-          onClick={handleCancel}
-        >
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div
-            className="bg-white p-8 rounded-lg shadow-lg w-[800px]"
-            onClick={(e) => e.stopPropagation()}
-          >
+            className="bg-white p-8 rounded-lg shadow-lg w-[800px]">
             <div className="flex items-center mb-4 gap-4">
               <button
                 onClick={handlePrevStep}
