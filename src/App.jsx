@@ -5,6 +5,7 @@ import { loginRequest } from "./authConfig";
 import LayoutPrincipal from "./Components/LayoutPrincipal/layout";
 import api from "./api/api";
 import { Toaster } from "react-hot-toast";
+import i18n from "./i18n";
 const AuthContext = createContext();
 export function useAuth() {
   return useContext(AuthContext);
@@ -18,7 +19,10 @@ function App() {
   const [userRoles, setUserRoles] = useState([]);
   const [company, setCompany] = useState(null);
   const [checkingCompany, setCheckingCompany] = useState(true);
-
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('language') || 'es'
+    i18n.changeLanguage(savedLanguage)
+  }, [])
   // 1️⃣ Inicializar MSAL primero
   useEffect(() => {
     const init = async () => {

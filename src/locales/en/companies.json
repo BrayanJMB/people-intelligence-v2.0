@@ -1,0 +1,25 @@
+
+{
+  "title": "Companies",
+  "subtitle": "Live companies",
+  "createCompany": "Create Company",
+  "uploadFile": "Upload file",
+  "downloadTemplate": "Download template",
+  "companyList": "Company list",
+  "searchPlaceholder": "Search by name...",
+  "editCompany": "Edit company",
+  "createCompanyModal": "Create company",
+  "toastCreating": "Creating company...",
+  "toastCreated": "Company created successfully",
+  "toastErrorCreate": "Error creating company",
+  "toastUpdating": "Updating company...",
+  "toastUpdated": "Company updated successfully",
+  "toastErrorUpdate": "Error updating company",
+  "toastDeleting": "Deleting company...",
+  "toastDeleted": "Company deleted successfully",
+  "toastErrorDelete": "Error deleting company",
+  "toastStatusUpdating": "Updating status...",
+  "toastStatusActive": "Company activated",
+  "toastStatusInactive": "Company deactivated",
+  "toastErrorStatus": "Error changing status"
+}

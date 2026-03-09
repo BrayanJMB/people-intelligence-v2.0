@@ -9,34 +9,31 @@ import {
   IconMessageFilled,
   IconUserFilled,
 } from "@tabler/icons-react";
-
+import { useTranslation } from 'react-i18next'
 import { useAuth } from "../../App";
 export default function Nav({ colorOptions, titulo }) {
   const ruta = location.pathname.toLowerCase();
   const id = ruta.split("/").pop();
   const { accessToken, userRoles } = useAuth();
+  const { t } = useTranslation('nav')
   const getTituloPagina = (ruta) => {
-    if (ruta === "/") return "Dashboard";
-    if (ruta === "/dashboard") return "Dashboard";
-    if (ruta === "/employeejourney") return "Employee Journey";
-    if (ruta == "/employeejourney/plantillaencuestas")
-      return "Plantillas de Encuestas";
-    if (ruta == "/employeejourney/crear") return "Crear Plantilla";
-    if (ruta == "/employeejourney/administrarencuestas")
-      return "Administrar Encuestas";
-    if (ruta == "/live-conversations") return "Dynamic Live Conversations";
-    if (ruta == "/crear-conversacion") return "Dynamic Live Conversations";
-    if (ruta == "/informationmanagement/empresas") return "Empresas";
-    if (ruta == "/informationmanagement/empleados") return "Empleados";
-    if (ruta == "/informationmanagement/departamentos") return "Departamentos";
-    if (ruta == "/informationmanagement/otros-campos") return "Otros campos";
-    if (ruta == "/network-analysis") return "Organizational Network Analysis";
-    if (ruta == "/advanced-analytics") return "Advanced Analytics & Dashboards";
-    if (ruta == `/employeejourney/editar/${id}`) return "Editar Encuesta";
-    if (ruta == `/live-conversations/editar/${id}`)
-      return "Dynamic Live Conversations";
-    return "";
-  };
+    if (ruta === "/" || ruta === "/dashboard") return t('dashboard')
+    if (ruta === "/employeejourney") return t('employeeJourney')
+    if (ruta === "/employeejourney/plantillaencuestas") return t('plantillasEncuestas')
+    if (ruta === "/employeejourney/crear") return t('crearPlantilla')
+    if (ruta === "/employeejourney/administrarencuestas") return t('administrarEncuestas')
+    if (ruta === "/live-conversations") return t('liveConversations')
+    if (ruta === "/crear-conversacion") return t('liveConversations')
+    if (ruta === "/informationmanagement/empresas") return t('empresas')
+    if (ruta === "/informationmanagement/empleados") return t('empleados')
+    if (ruta === "/informationmanagement/departamentos") return t('departamentos')
+    if (ruta === "/informationmanagement/otros-campos") return t('otrosCampos')
+    if (ruta === "/network-analysis") return t('networkAnalysis')
+    if (ruta === "/advanced-analytics") return t('advancedAnalytics')
+    if (ruta === `/employeejourney/editar/${id}`) return t('editarEncuesta')
+    if (ruta === `/live-conversations/editar/${id}`) return t('liveConversations')
+    return ""
+  }
 
   // Estado para almacenar el título de la página
   const [activeLink, setActiveLink] = useState(
@@ -70,16 +67,16 @@ export default function Nav({ colorOptions, titulo }) {
     >
       <Link
         to="/dashboard"
-        className={`nav-item ${activeLink == "Dashboard" ? "active" : ""}`}
-        onClick={() => handleLinkClick("Dashboard")} // Pasas el título 'Dashboard' al hacer clic
+        className={`nav-item ${activeLink == t('dashboard') ? "active" : ""}`}
+        onClick={() => handleLinkClick('dashboard')}
       >
-        <span className={`icon mx-3 p-2`}>
+        <span className="icon mx-3 p-2">
           <IconLayoutDashboardFilled
-            {...(activeLink == "Dashboard" ? {} : { color: "inherit" })}
-            className={`${activeLink == "Dashboard" ? "iconActive" : ""}`}
-          ></IconLayoutDashboardFilled>
+            {...(activeLink == t('dashboard') ? {} : { color: "inherit" })}
+            className={`${activeLink == t('dashboard') ? "iconActive" : ""}`}
+          />
         </span>
-        <span className="nav-text">Dashboard</span>
+        <span className="nav-text">{t('dashboard')}</span>
       </Link>
        {/* Se comentan estas secciones que aún no son ncesarioas
         <Link
@@ -138,27 +135,19 @@ export default function Nav({ colorOptions, titulo }) {
         <span className="nav-text">Dynamic Live Conversations</span>
       </Link>
       */}
-        <Link
-          to="/advanced-analytics"
-          className={`nav-item ${
-            activeLink == "Advanced Analytics & Dashboards" ? "active" : ""
-          }`}
-          onClick={() => handleLinkClick("Advanced Analytics & Dashboards")} // Pasas el título 'Advanced Analytics & Dashboards'
-        >
-          <span className="icon mx-3 p-2">
-            <IconChartAreaFilled
-              {...(activeLink == "Advanced Analytics & Dashboards"
-                ? {}
-                : { color: "inherit" })}
-              className={`${
-                activeLink == "Advanced Analytics & Dashboards"
-                  ? "iconActive"
-                  : ""
-              }`}
-            ></IconChartAreaFilled>
-          </span>
-          <span className="nav-text">Advanced Analytics & Dashboards</span>
-        </Link>
+      <Link
+        to="/advanced-analytics"
+        className={`nav-item ${activeLink == t('advancedAnalytics') ? "active" : ""}`}
+        onClick={() => handleLinkClick('advancedAnalytics')}
+      >
+        <span className="icon mx-3 p-2">
+          <IconChartAreaFilled
+            {...(activeLink == t('advancedAnalytics') ? {} : { color: "inherit" })}
+            className={`${activeLink == t('advancedAnalytics') ? "iconActive" : ""}`}
+          />
+        </span>
+        <span className="nav-text">{t('advancedAnalytics')}</span>
+      </Link>
       <div
         className={`relative group flex-col w-full nav-item cursor-default ${
           ["Empresas", "Empleados", "Departamentos", "Otros campos"].includes(
@@ -172,7 +161,7 @@ export default function Nav({ colorOptions, titulo }) {
           <span className="icon mx-3 p-2">
             <IconUserFilled
               {...([
-                "Empresas",
+                t('empresas'),
                 //"Empleados",
                 //"Departamentos",
                 //"Otros campos",
@@ -181,7 +170,7 @@ export default function Nav({ colorOptions, titulo }) {
                 : { color: "inherit" })}
               className={`${
                 [
-                  "Empresas",
+                  t('empresas'),
                   //"Empleados",
                   //"Departamentos",
                   //"Otros campos",
@@ -192,7 +181,7 @@ export default function Nav({ colorOptions, titulo }) {
             ></IconUserFilled>
           </span>
           <span className="nav-text">
-            Information <br /> Management
+            {t('informationManagement')}
           </span>
         </div>
 
@@ -201,12 +190,12 @@ export default function Nav({ colorOptions, titulo }) {
           <li className="my-3">
             <Link
               className={`px-4 py-2 hover:bg-gray-400 w-full rounded ${
-                activeLink == "Empresas" ? "bg-[#ccc]" : ""
+                activeLink == t('empresas') ? "bg-[#ccc]" : ""
               }`}
               to="/informationmanagement/empresas"
-              onClick={() => handleLinkClick("Empresas")}
+              onClick={() => handleLinkClick('empresas')}
             >
-              Empresas
+              {t('empresas')}
             </Link>
           </li>
           {/*

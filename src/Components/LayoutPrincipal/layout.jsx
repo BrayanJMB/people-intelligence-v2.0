@@ -50,6 +50,7 @@ import {
   currentCompanySelected,
 } from "../../features/companies/companiesSlice";
 import PowerBi from "../PowerBI/PowerBI";
+import LanguageSelector from "../LanguageSelector";
 export default function LayoutPrincipal() {
   const dispatch = useDispatch();
   const activeCompanies = useSelector(selectActiveCompanies);
@@ -501,6 +502,7 @@ export default function LayoutPrincipal() {
               </ul>
             </div>
             <div className="flex items-center flex-wrap">
+              <LanguageSelector />
               <IconSearch
                 color={selectedHeaderColorIcons}
                 onClick={handleSearch}

@@ -24,6 +24,7 @@ import { StepNavigationButtons } from "../../shared/StepNavigationButtons";
 import { useFilteredItems } from "../../Hooks/useFilteredItems";
 import { TableWithSortAndSearch } from "../../shared/TableWithSortAndSearch";
 import { informationCompanies } from "./schemas/tableCompany.schema";
+import { useTranslation } from 'react-i18next'
 
 export default function InformationEmpresas() {
   const {
@@ -42,7 +43,8 @@ export default function InformationEmpresas() {
     fetchCompanies,
     loading,
   } = useInformationLogic();
-
+const { t } = useTranslation('empresas')
+const { t: tTable } = useTranslation('table')
   const dispatch = useDispatch();
   const currentCompany = useSelector(selectCurrentCompany);
   const [currentStep, setCurrentStep] = useState(1);
@@ -96,12 +98,11 @@ export default function InformationEmpresas() {
   const handleSwitchChange = async (id) => {
     const newValue = !switchStates[id];
     setSwitchStates((prevStates) => ({ ...prevStates, [id]: !prevStates[id] }));
-
     await toast.promise(updateStatusCompany(id, { isActive: newValue }), {
-      loading: "Actualizando estado...",
-      success: `Empresa ${newValue ? "activada" : "desactivada"}`,
-      error: "Error al cambiar el estado",
-    });
+      loading: t('toastStatusUpdating'),
+      success: newValue ? t('toastStatusActive') : t('toastStatusInactive'),
+      error: t('toastErrorStatus'),
+    })
 
     if (accounts[0].localAccountId) {
       dispatch(fetchActiveCompany({ idUser: accounts[0].localAccountId }));
@@ -116,10 +117,10 @@ export default function InformationEmpresas() {
     setOpenModal(false);
 
     await toast.promise(createCompany(accounts[0].localAccountId, data), {
-      loading: "Creando empresa...",
-      success: "Empresa creada exitosamente",
-      error: "Error al crear la empresa",
-    });
+      loading: t('toastCreating'),
+      success: t('toastCreated'),
+      error: t('toastErrorCreate'),
+    })
 
     setData(emptyCompanyForm);
     await fetchCompanies();
@@ -162,10 +163,10 @@ export default function InformationEmpresas() {
     setSelectedCompanyId(null);
 
     await toast.promise(deleteCompany(selectedCompanyId), {
-      loading: "Eliminando empresa...",
-      success: "Empresa eliminada exitosamente",
-      error: "Error al eliminar la empresa",
-    });
+      loading: t('toastDeleting'),
+      success: t('toastDeleted'),
+      error: t('toastErrorDelete'),
+    })
 
     await fetchCompanies();
     if (accounts[0].localAccountId) {
@@ -180,10 +181,10 @@ export default function InformationEmpresas() {
     setData(emptyCompanyForm);
 
     await toast.promise(updateCompany(data), {
-      loading: "Actualizando empresa...",
-      success: "Empresa actualizada exitosamente",
-      error: "Error al actualizar la empresa",
-    });
+      loading: t('toastUpdating'),
+      success: t('toastUpdated'),
+      error: t('toastErrorUpdate'),
+    })
 
     await fetchCompanies();
     if (accounts[0].localAccountId) {
@@ -218,24 +219,32 @@ export default function InformationEmpresas() {
       <section className="mx-8 min-h-[85vh] h-max rounded-[20px] overflow-hidden pt-5 px-0">
         <section className="flex justify-between items-center bg-white p-8 px-11 rounded-[20px]">
           <div>
-            <h2 className="font-bold text-[22px]">Empresas</h2>
-            <p>(Empresas en vivo)</p>
+            <h2 className="font-bold text-[22px]">{t('title')}</h2>
+            <p>{t('subtitle')}</p>
           </div>
           <button
             onClick={() => setOpenModal(!openModal)}
             className="btn btn-principal"
           >
             <IconPlus />
-            <span>Crear Empresa</span>
+            <span>{t('createCompany')}</span>
+          </button>
+          <button className="btn btn-principal">
+            <IconPlus />
+            <span>{t('uploadFile')}</span>
+          </button>
+          <button className="btn btn-principal">
+            <IconPlus />
+            <span>{t('downloadTemplate')}</span>
           </button>
         </section>
 
         <section className="my-6 bg-white p-8 rounded-[20px]">
           <div className="flex justify-between items-center px-4 mb-4">
-            <h2 className="text-lg font-semibold">Listado de empresas</h2>
+            <h2 className="text-lg font-semibold">{t('companyList')}</h2>
             <input
               type="text"
-              placeholder="Buscar por nombre..."
+              placeholder={t('searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -246,7 +255,7 @@ export default function InformationEmpresas() {
           </div>
           <div className="overflow-x-auto">
             <TableWithSortAndSearch
-              columns={informationCompanies}
+              columns={informationCompanies(tTable)}
               data={sortedCurrentItems}
               loading={loading}
               sortField={sortField}
@@ -267,10 +276,8 @@ export default function InformationEmpresas() {
       </section>
 
       {openModal && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div
-            className="bg-white p-8 rounded-lg shadow-lg w-[800px]">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-8 rounded-lg shadow-lg w-[800px]">
             <div className="flex items-center mb-4 gap-4">
               <button
                 onClick={handlePrevStep}
@@ -284,7 +291,7 @@ export default function InformationEmpresas() {
                 />
               </button>
               <h3 className="text-[22px] font-bold">
-                {editing ? "Editar empresa" : "Crear empresa"}
+                {editing ? t('editCompany') : t('createCompanyModal')}
               </h3>
             </div>
 

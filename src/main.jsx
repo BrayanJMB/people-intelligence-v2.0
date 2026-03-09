@@ -8,7 +8,7 @@ import { MsalProvider } from "@azure/msal-react";
 import { msalConfig } from "./authConfig";
 import { Provider } from 'react-redux';
 import { store } from './app/store'; // ajusta la ruta si es diferente
-
+import i18n from "./i18n.js";
 const msalInstance = new PublicClientApplication(msalConfig);
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
